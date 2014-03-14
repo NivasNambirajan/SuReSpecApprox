@@ -1,0 +1,13 @@
+\begin{thebibliography}{1}
+
+\bibitem{BDM}
+C.~Boutsidis, P.~Drineas, and M.~Magdon-Ismail.
+\newblock Near-optimal column-based matrix reconstruction.
+\newblock In {\em http://arxiv.org/abs/1103.0995v2}, 2012.
+
+\bibitem{SR}
+K.~C. Sou and A.~Rantzer.
+\newblock On a generalized matrix approximation problem in the spectral norm.
+\newblock In {\em Linear Algebra and its Applications, 436 (2331-2341)}, 2012.
+
+\end{thebibliography}
