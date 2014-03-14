@@ -1,0 +1,110 @@
+\section{Main Result}
+Let $C \in \reals^{m \times n}, \; m \geq n$ and let $B \in \reals^{m \times r}$ be a basis for $\B$, an $r$-dimensional subspace of $\reals^m$. Any matrix of rank $k \leq r$ with columns in $\B$ may be written is $Y = BZ$, with $rank(Z) = k$. We define the critical rank, $k^*$, as the number of singular values of $C$ strictly larger than the orthogonal complement of $C$ with respect to $\B$ in (spectral) norm:
+\begin{eqnarray}\label{critical rank inequality}
+\sigma_{k^*}(C) > \norm{C_{\N}} \geq \sigma_{k^*+1}(C).
+\end{eqnarray}
+Our main observation is that the best rank-$k$ approximation, $C_{\B, k}$, with columns in $\B$, to $C$ is for the most part either
+\begin{itemize}
+\item as good as the best rank-$k$ approximant, $C_k$, without any subspace-restrictions on its columns, or
+\item as good as the best subspace restricted approximant, $C_{\B}$, without any rank restrictions.
+\end{itemize}
+Formally:
+\begin{theorem}\label{main theorem}
+Given $1 \leq k < r,$
+\[ \norm{C - C_{\B,k}}  \left\{ \begin{array}{ll} = \norm{C - C_k} = \sigma_{k+1}(C), & \quad k < k^*,\\
+[5 pt] \leq (1+\epsilon)\norm{C_{\N}}, & \quad k^* \leq k < k^*+h, \text{ } \forall \epsilon > 0 \\
+[5 pt] = \norm{C - C_{\B}} = \norm{C_{\N}}, & \quad k \geq k^*+h,  \end{array} \right. \]
+where $h=\rank(C_{\B} V_0V_0^T)$ 
+and \math{V_0} is a basis for the top singular subspace of $C_{\N}$.
+\end{theorem}
+
+\noindent We note that the effect of the subspace for column-restriction, $\B$, on the spectral approximation error is to place an upper bound, $k^*$, on the rank up to which we may expect to do as well as a subspace-unrestricted rank-$k$ approximation to $C$. When the rank of the approximation meets or exceeds this allowance, $k^*$, we obtain an approximation that provides the same (or almost the same) error as $C_{\B}$, the best $\B$-restricted approximation to $C$ possible. As a typical case, consider a full rank $C$. If the \emph{rank allowance}, $k^*$, provided by $\B$ is very small - $k^* \ll r$, say - then $C_{\B,  k^*}$ is as good an approximation to $C$ as $C_{\B}$ (which is of rank $r$), but with far lesser rank. If, on the other hand, $k^* = r$, we see that restricting the columns to belong to $\B$ doesn't affect the approximation at all, and $C_{\B, k \leq k^*}$ is as good as $C_k$. We refer the reader to Section 3 for the proof of Theorem~\ref{main theorem}. 
+
+\subsection{Construction Of Subspace Restricted Low Rank Approximations}
+We now turn to the construction of approximations having the properties promised in Theorem~ \ref{main theorem}. The construction-strategy, as in Sou and Rantzer, will be to remove the explicit subspace-restriction, but retain the rank-restriction, by constructing a series of transformations of, eventually leading to a problem of approximating a modified matrix appropriately. We then extract a subspace restricted low-rank approximation to MAIN by inverse-transforming the solution to this equivalent problem.
+
+\subsubsection{Removing The Explicit Subspace Restriction}
+Suppose spectral error $\beta \geq \norm{C_{\N}}$ is achievable. So
+ $\exists Y = BZ$, such that $\norm{C - Y} \leq \beta$. Then,
+\begin{align*}
+&\phantom{\iff}\norm{C - Y} \leq \beta \\[3pt]
+& \iff \left( {C} - {Y} \right)^T \left( {C} - {Y} \right) 
+\Leq \beta^2 I \\
+& \iff \left( {C}_N + {C}_B - {Y} \right)^T \left( {C}_N + {C}_B - {Y} \right) \Leq \beta^2 I \\
+& \iff \left( {C}_B - {Y} \right)^T \left( {C}_B - {Y} \right) \Leq \beta^2 I - {C}_N ^T {C}_N, \qquad (\text{since }  {C}_N^T({C}_B - {Y})=0).
+\end{align*}
+Define 
+$\Delta = \beta^2 I - {C}_N ^T {C}_N$, and let the \emph{full} SVD of $C_N$ be 
+\[ C_N = U_N\Sigma_NV_N^T, \quad U_NU_N^T=U_N^TU_N=I_m, \quad V_NV_N^T = V_N^TV_N = I_n. \]
+Then, $\Delta = \beta^2 I - {C}_N ^T {C}_N = V_N(\beta^2I - \Sigma_N^2)V_N^T,$ and can be written as
+\[ \Delta =  [  V_+ \quad V_0  ]
+\begin{bmatrix}
+&\Sigma_+ & 0 &\\
+&0 & 0&
+\end{bmatrix}
+\begin{bmatrix}
+&V_+^{\text{T}}&\\
+&V_0^{\text{T}}&
+\end{bmatrix} = V_+ \Sigma_+ V_+^T \]
+where the orthonormal bases $V_+$ and $V_0$ correspond to the positive and zero eigenvalues of $\Delta$ respectively. We observe that
+\math{V_0} spans the subspace corresponding to the top singular
+value of \math{C_N}.
+We can now apply Lemma \ref{basic lemma} with the null space of 
+$\Delta$ spanned by $V_0$. Thus, summarizing the results we have
+\begin{lemma}\label{combined}
+\begin{eqnarray}\label{equation not invert}
+\left( {C}_B - {Y} \right)^T \left( {C}_B - {Y} \right) \Leq \Delta 
+\text{\quad if and only if \quad }
+\begin{cases}
+\quad (C_B - Y)V_0 = 0, \\
+\norm{\left( {C}_B - {Y} \right) \sqrt{\Delta^{\dagger}} } \leq 1,
+\end{cases}
+\end{eqnarray}
+\end{lemma}
+\noindent which is a generalization of the case when \math{\Delta} is invertible (in which case \math{V_0} is set to \textbf{0} and \math{\Delta^\dagger=\Delta^{-1}}).
+Using the row basis  $[V_+ \quad V_0]^T$, we can write
+%\begin{align*}
+\[Y = Z_1V_+^T + Z_2V_0^T\]
+%\end{align*}
+Then, from (\ref{equation not invert})
+\begin{align*}
+(C_B - Y)V_0 = 0 & \iff (C_B - Z_1V_+^T - Z_2V_0^T)V_0 = 0\\
+& \iff C_BV_0 - Z_2 = 0, \quad V_+ \perp V_0\\
+& \iff Z_2 = C_BV_0\\
+& \iff Y = Z_1V_+^T + C_BV_0V_0^T
+\end{align*}
+Using this $Y$ and the second condition in (\ref{equation not invert})
+\begin{align*}
+\quad \norm{\left( {C}_B - {Y} \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1 \quad \iff & \quad \norm{\left( {C}_B - C_BV_0V_0^T - Z_1V_+^T \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1,\\
+\iff & \quad \norm{\left(C_BV_+V_+^T - Z_1V_+^T \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1,\\
+\iff & \quad \norm{C_BV_+{\Sigma}^{-1/2}_+V_+^T  - Z_1{\Sigma}^{-1/2}_+V_+^T } \leq 1\\
+\iff & \quad \norm{\tilde{C} - \tilde{Y}} \leq 1
+\end{align*}
+where, \quad $\tilde{C} = C_BV_+{\Sigma}^{-1/2}_+V_+^T = C_B \sqrt{\Delta^{\dagger}}$, \quad and \quad $\tilde{Y} = Z_1{\Sigma}^{-1/2}_+V_+^T$.
+Since the row, column spaces of $\tilde Y$ are contained in the row, column spaces of $\tilde C$, we may obtain $\tilde{Y}$ that satisfies the above condition by gathering all the singular components of $\tilde{C}$ with singular values strictly larger than 1. 
+
+\subsubsection{Extracting The Subspace-Restricted Low Rank Approximation}
+Since \math{V_+,V_0} are mutually orthogonal,
+$$\rank(Y)=\rank(Z_1V_+^T)+\rank(C_BV_0V_0^T)=\rank(Z_1V_+^T)+h.$$
+So, if error \math{\beta} can be achieved with rank 
+\math{k+h}, we pick $\tilde Y$ as $(\tilde C)_k = (C_B\sqrt{\Delta^{\dagger}} )_k$.  We note that 
+\[ Z_1 V_+ ^T = Z_1 {\Sigma}^{-1/2}_+V_+ ^T V_+ \Sigma^{1/2} V_+ ^T = \tilde Y \sqrt{\Delta},  \]
+and $Y$ can be constructed as
+\[ Y = \tilde Y \sqrt{\Delta} + C_B V_0 V_0 ^T. \]
+%We show that this truncation ensures $\rank(\tilde{Y}) \leq k^*$ (Lemma \ref{rank Y tilde}). Therefore, gathering a $k^*$ number of singular components of $\tilde{C}$ to form $\tilde{Y}$ is sufficient to guarantee a solution $Y$ that achieves minimum error $\norm{C_N}$. 
+We summarize our discussion in the following lemma.
+\begin{lemma}\label{achievable}
+Let \math{\beta\ge\norm{C_N}} and let \math{\Delta=\beta^2I-C_N^TC_N} with
+\math{V_0} as the basis for its nullspace. Let 
+\math{h=\rank(C_BV_0V_0^T)} (if \math{\Delta} is invertible then
+\math{V_0=\bm0} and \math{h=0}), and suppose error \math{\beta} can be achieved with 
+rank \math{k+h}.
+Then 
+$$
+Y=(C_B \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_BV_0V_0^T
+$$
+is a solution satisfying \math{\norm{C-Y}\le\beta}, 
+\math{\rank(Y)\le k+h} and \math{Y=BX} for some \math{X\in\RR^{r\times n}}.
+\end{lemma}
+
+\input{algos}

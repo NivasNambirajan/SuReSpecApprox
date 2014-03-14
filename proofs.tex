@@ -1,0 +1,96 @@
+\section{Proofs}
+\subsection{Lemma \ref{basic lemma}}
+The proof of lemma \ref{basic lemma} is intuitive; we state the intuition first, followed by a formal proof. We first note that $X \Leq Y$ implies that the action of $Y$ is at least as large as the action of $X$ everywhere in $\RR^n$. Clearly, this implies that, $X$ cannot have a non-zero action in the space where $Y$ has zero action, leading to $X V_0 = \0$. This also implies that, in the space where $Y$ has non-zero action in general, its pseudo inverse must reduce a vector more than $X$ magnifies it, which is essentially the intuition contained in $\norm{F \sqrt{Y^{\dagger}} } \leq 1$. 
+
+\begin{proof}
+We prove the equivalence between $X \Leq Y$ and $\norm{F \sqrt{Y^{\dagger}} } \leq 1$, $X V_0 = \mathbf{0}$ by contraposition. First, we prove the forward implication. Suppose $X V_0 \neq \mathbf{0}$. We note that 
+\[ XV_0 = \mathbf{0} \Leftrightarrow F^T F V_0 = \mathbf{0} \Leftrightarrow FV_0 = \mathbf{0}, \]
+whence
+\[ XV_0 \neq \mathbf{0} \Leftrightarrow FV_0 \neq \mathbf{0} \Leftrightarrow V_0 ^T F^T F V_0 = V_0 ^T X V_0 \Geq \mathbf{0}. \]
+So $\exists y \neq 0$ such that $y^T V_0 ^T X V_0 y > 0$. We now define $z = V_0 y$ and observe that $Y z = 0$ (since $z$ is in the nullspace of $Y$, spanned by $V_0$), whence
+\[ z^T (Y - X) z = - z^T X z = - y^T V_0 ^T X V_0 y  < 0, \]
+implying that $X \not \Leq Y$.
+
+\noindent Now suppose, instead, that $\norm{F \sqrt{Y^{\dagger}}} \not \leq 1$:
+\[ \norm{F \sqrt{Y^{\dagger}} } \not \leq 1 \Leftrightarrow \sqrt{Y^{\dagger}} ^T F^T F \sqrt{Y^{\dagger}} \not \Leq I  \Rightarrow F^T F \not \Leq Y. \]
+Since $F^T F = X$, it follows that $X \not \Leq Y$ and establishes the forward implication in lemma \ref{basic lemma}.
+
+\noindent Now we prove the backward implication. Let $X \not \Leq Y$. Then $Y - X \not \Geq 0$ and $\exists z \neq 0$ such that
+\[ z^T Y z < z^T X z. \]
+Let us write, without loss of generality, $z = z_1 + z_2$, where $z_1 = V_+ y_1, z_2 = V_0 y_2$. Then 
+\begin{align*}
+z^T Y z = z_1 ^T Y z_1 < z^T X z &= z_1 ^T X z_1 + z_2 ^T X z_2 + 2 z_1 ^T X z_2 \quad (\text{since }X \text{ is symmetric})\\
+&= z_1 ^T X z_1 + y_2 ^T V_0 ^T X V_0 y_2 + 2 z_1 ^T X V_0 y_2.
+\end{align*}
+We note that this cannot be true if both $XV_0 = \0$ (whence $X V_0 y_2 = 0$) and $z_1 ^T Y z_1 > z_1 ^T X z_1$. So either $XV_0 \neq \0$ or $z_1 ^T Y z_1 < z_1 ^T X z_1$. The former immediately negates $XV_0 = \mathbf{0}$. Suppose the latter is true. It follows that
+\[ z_1 ^T \sqrt{Y^{\dagger}}^T Y \sqrt{Y^{\dagger}} z_1 = z_1 ^T z_1 = \norm{z_1}^2 < z_1 ^T \sqrt{Y^{\dagger}}^T X \sqrt{Y^{\dagger}} z_1. \]
+We simply define $\hat{z_1} = z_1 / \norm{z_1}$ now to get 
+\[ 1 < \hat{z_1} \sqrt{Y^{\dagger}}^T X \sqrt{Y^{\dagger}} \hat{z_1} = \hat{z_1} \sqrt{Y^{\dagger}}^T F^T F \sqrt{Y^{\dagger}} \hat{z_1}, \]
+whence
+\[ \norm{F \sqrt{Y^{\dagger}}} > 1,\]
+negating $\norm{F \sqrt{Y^{\dagger}}} \leq 1$, proving the backward implication and establishing the equivalence promised in lemma \ref{basic lemma}.
+\end{proof}
+
+\subsection{Proof of Theorem \ref{main theorem}}
+\begin{proof}
+We recall from Section 2 that $\beta \geq \norm{C_{\N}}$ is the achievable error, and that $\norm{{C} - {Y}} \leq \beta$ only if $\norm{\tilde{C} - \tilde{Y}} \leq 1$, where $\tilde{C} = C_{\B} \sqrt{\Delta^{\dagger}}$, and $\tilde{Y} = Z_1{\Sigma}^{-1/2}_+V_+^T$. The least-rank solution to the latter inequality can be found by collecting singular value components of $\tilde{C}$ that are strictly larger than 1, i.e., $\tilde{Y} = \tilde{C}_{\tau}$, where $\tau$ is the number of singular values of $\tilde{C}$ that are larger than 1. Since we transform $\tilde Y$ to obtain $C_{\B, k}$, this allows us to establish a relationship between $\beta$ and the rank-restriction, $k$, to prove the three cases mentioned in theorem \ref{main theorem}. We establish this relationship in lemma \ref{lambda plus}, prove the cases mentioned in the theorem, and then complete the discussion by proving the lemma itself.\\  
+\noindent First, let $ \sigma^{(r)}(K)$ denote the  number of singular values of matrix $K$ that are larger than $r$, and $\lambda_{+}(K)$, the number of positive eigenvalues of $K$.
+So $\sigma^{(1)}(K) = \lambda_{+}(K^T K - I)$ and
+\[ \sigma^{(r)}(K) =  \lambda_{+}( K^T K - r^2 I) \quad \forall r > 0. \]
+
+Now, let $h  = rank(C_{\B} V_0 V_0 ^T)$ be as defined in lemma \ref{achievable}. Then, 
+\begin{lemma}\label{lambda plus}
+\[ \beta > \norm{C_{\N}} \Rightarrow \left\{ \begin{array}{l} \sigma^{(1)}(\tilde{C}) = \sigma^{(\beta)} (C) \\ h = 0 \end{array} \right. , \quad \beta = \norm{C_{\N}} \Rightarrow \left\{ \begin{array}{l} \sigma^{(1)}(\tilde{C}) \leq \sigma^{(\beta)} (C) \\ h \geq 1 \end{array} \right. \]
+\end{lemma}
+
+\subsubsection{Proving $\norm{C - C_{B, k}} = \sigma_{k+1}(C)$, for $k < k^*$}
+\begin{proof}
+For $k < k^*$, let $\beta = \sigma_{k+1}(C) \leq \sigma_{k^*} (C) < \norm{C_{\N}}$ be the error we look to achieve with an approximation $Y = BZ$. Clearly, $\sigma^{(\beta)} (C) = k$ and by lemma \ref{lambda plus}, we have
+\[ \sigma^{(1)}(\tilde{C}) = k, \quad h = 0. \]
+By lemma \ref{achievable}, there exists a $Y=(C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ such that $\norm{C - Y} \leq \beta$. Since $h = rank(C_{\B} V_0V_0^T) = 0$, $rank(Y) = k$. However, by Eckart-Young theorem, $\forall D$ with $rank(D) \leq k$, $\norm{C - D} \geq \sigma_{k+1} (C)$, implying that
+\[ \norm{C - Y} = \sigma_{k+1}(C).\]
+So $C_{\B, k} := Y$ provides us the promised result.
+\end{proof}
+
+\subsection{Proving $\norm{C - C_{\B, k}} \leq (1 + \epsilon) \norm{C_{\N}}$ for $k^* \leq k \leq k^* + h$}
+\begin{proof}
+This follows by setting $\beta = (1 + \epsilon)\norm{C_{\N}}$ and arguing as in the immediately preceding case, without the use of the observation by Eckart and Young.
+\end{proof}
+
+\subsection{Proving $\norm{C- C_{\B, k}} = \norm{C_{\N}}$, for $k \geq k^* + h$}
+\begin{proof}
+Let $\beta = \norm{C_{\N}}$. We have, from lemma \ref{achievable} that $Y = (C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ has the property that $\norm{C - Y} \leq \beta = \norm{C_{\N}}$, and 
+\[ rank(Y) = \sigma^{(1)}(\tilde{C}) + h. \]
+From lemma \ref{lambda plus}: $\sigma^{(1)}(\tilde C) \leq \sigma^{(\beta)}(C) \leq k^*$. So it follows that $\forall k \geq k^* + h,$ $rank(Y) \leq k$. Since $C_{\B}$ is the projection of $C$ onto $\B$, we have that for any $D$ with columns in $\B$,
+\[ \norm{C - D} = \norm{C - C_{\B} + C_{\B} - D} \geq \norm{C - C_{\B}} = \norm{C_{\N}}.\]
+Together with $\norm{C - Y}  \leq \norm{C_{\N}}$, setting $C_{\B, k} := Y$ proves the promised result.
+\end{proof}
+
+\noindent \textbf{Proof of Lemma \ref{lambda plus}}
+\begin{proof}
+We begin by observing that
+\[ C^T C - \beta^2 I  = C_{\B} ^T C_{\B} + C_{\N} ^T C_{\N} - \beta^2 I = C_{\B} ^T C_{\B}  - \Delta, \]
+and hence
+\[ \sigma^{(\beta)} (C) = \lambda_+ \left( C^T C - \beta^2 I \right) = \lambda_+ \left( C_{\B} ^T C_{\B}  - \Delta \right). \]
+We write the SVD of $\Delta$ as $[V_+, V_0] \Sigma [V_+, V_0]^T$, where the subscripts $+, 0$ stand for the basis of non-zero action (corresponding to positive singular values) and the basis for the null-space (corresponding to singular values that are 0). We now define 
+\[ \Delta_1 = \Delta + V_0 V_0 ^T, \]
+effectively replacing the zeros in $\Sigma$ by ones. Clearly, $\Delta_1 ^{-1} \Delta = \Delta^{\dagger} \Delta = V_+ V_+ ^T = I - V_0 V_0 ^T$. Since $\Delta_1$ is non-singular by construction, it follows from Sylvester's Law of Inertia that
+\[ \sigma^{(\beta)} (C) = \lambda_+ (C_{\B} ^T C_{\B}  - \Delta) = \lambda_+ \left( \sqrt{\Delta_1 ^{-1}} ^T C_{\B} ^T C_{\B} \sqrt{\Delta_1 ^{-1}} -  I + V_0 V_0 ^T  \right) . \numberthis \label{beta station} \]
+We now recall a standard result that $\forall G \Geq 0$, $\lambda(C + G) \geq \lambda(C)$. As a result, $\lambda_+ (C+G) \geq \lambda_+ (C)$, and we may proceed to reason as follows. By definition of $\Delta_1$, $\sqrt{\Delta_1^{-1}} = \sqrt{\Delta^{\dagger}} + V_0 V_0 ^T$, whence 
+\[ \sqrt{ \Delta_1 ^{-1} } ^T C_{\B} ^T C_{\B} \sqrt{ \Delta_1 ^{-1}}  = \sqrt{\Delta^{\dagger}}^T C_{\B} ^T C_{\B} \sqrt{\Delta^{\dagger}} + G_1 + G_2 + G_2 ^T, \text{ where } \]
+\[ G_1 = V_0 V_0 ^T C_{\B} ^T C_{\B} V_0 V_0 ^T \Geq 0, \quad  G_2 = \sqrt{\Delta^{\dagger}}^T C_{\B} ^T C_{\B} V_0 V_0 ^T \Geq 0, \quad  G_2 ^T \Geq 0 \] 
+since these are simply products of SPSD matrices. Since $V_0 V_0 ^T \Geq 0$ as well, 
+\begin{align*}
+\lambda_+ \left( \sqrt{ \Delta_1 ^{-1} } ^T C_{\B} ^T C_{\B} \sqrt{ \Delta_1 ^{-1} } - I + V_0 V_0 ^T \right)  & \geq \lambda_+ \left( \sqrt{\Delta^{\dagger}}^T C_{\B} ^T C_{\B} \sqrt{\Delta^{\dagger}}  - I \right),  \numberthis \label{p2inv}\\ 
+& \quad \text{ since } G_1 + G_2 + G_2 ^T + V_0 V_0 ^T \Geq 0 \\
+& \geq \lambda_+ \left( \tilde{C} ^T \tilde{C} - I \right) \numberthis \label{p2inv2} \\
+& \quad \text{ since, by definition, } \tilde{C} = C_{\B} \sqrt{\Delta ^{\dagger}} \\
+& = \sigma^{(1)}(\tilde C).
+\end{align*}
+Along with (\ref{beta station}), we now have
+\[ \sigma^{(\beta)}(C) \geq \sigma^{(1)}(\tilde C). \numberthis \label{bto1} \]
+Finally, we note that, when $\beta > \norm{C_{\N}}$, $\Delta = \beta ^2 I - C_{\N}^T C_{\N}  \> \mathbf{0}$ and invertible. So $V_0 V_0 ^T = \mathbf{0}$ whence $G_1, G_2, G_2^T = \mathbf{0}$, $h = rank(C_{\B} V_0 V_0 ^T) = 0$, and (\ref{p2inv}), (\ref{p2inv2}) and (\ref{bto1}) hold with equality. When $\beta = \norm{C_{\N}}$, $\Delta$ has a nullspace, implying that $V_0 V_0 ^T \neq \mathbf{0}$ and that $h \geq 1$. This completes the proof of lemma \ref{lambda plus}.
+\end{proof}
+
+\noindent To summarize: we've shown above that there is an approximation to $C$, $C_{\B, k^* + h}$, of rank at most $k^* + h$ with columns in the column space of $B$ such that $\norm{C - C_{\B, k^* + h}} = \norm{C_{\N}}$; we've also shown that, for all $k < k^*$, we may find an approximation, $C_{\B, k}$, with columns in the column space of $B$, such that $\norm{C - C_{\B, k}} = \sigma_{k+1}$. This closes the proof of Theorem \ref{main theorem}.
+\end{proof}

@@ -1,0 +1,62 @@
+\subsubsection{The Algorithm}
+An algorithm that solves problem (\ref{main problem}) results naturally from our analysis above. This algorithm is presented as \textbf{Su}bspace \textbf{Re}stricted \textbf{S}pectral \textbf{A}pproximation below. It is split into modules both for the purposes of exposition and to serve as units of improvement in runtime of the overall algorithm. We also provide the leading running times - running times of operations that are $\Omega(T_{svd(B)})$ - next to the corresponding operations.
+%% ============ The Algorithm begins ==================
+\begin{framed}
+\begin{alg}\label{alg:outline}
+{\bf SuReSpectralApprox($C$, $B$, $k$, $\epsilon$) }
+\end{alg}
+\noindent {\bf Input:} $C \in \reals^{m \times n}$, $B \in \reals^{m \times r}$, $k$ : $1 \leq k \leq n$, and $\epsilon > 0$.\\
+\noindent {\bf Output:} $Y$ such that $Y=BX$, $\rank(Y) \leq k$, with error $\beta = \norm{C - Y}$ achieved according to Theorem \ref{main theorem}.
+%\noindent {\bf Steps:}
+%
+\begin{align*}
+1. \quad& [C_{\B}, C_{\N}] = \textbf{Orthosplit}(C, B) & O(mnr + T_{svd(B)})\\
+2. \quad& h = \textbf{rank}(C_{\B} V_0 V_0 ^T)  & O\left(T_{svd(B)} \right)\\
+3. \quad& [\beta,\bar h] = \textbf{SetError}(C, C_{\N}, k, h, \epsilon) & O\left( T_{svd(C)} \right) \\
+4. \quad& \Delta = \beta^2 I - C_{\N} ^T C_{\N} & \\
+5. \quad& Y = \textbf{ExtractApproximation}(C_{\B}, \Delta, k, \bar h) & O\left( T_{svd(C)} \right) \\
+\end{align*}
+%
+\end{framed}
+%% ============ The Algorithm ends ==================
+
+\noindent We note that the approximation error may be obtained prior to obtaining the approximation itself. The integer, $h$, is the rank-baggage for obtaining an approximation, $C_{\B, k}$, that is as good as the best possible approximation, $C_{\B}$, to $C$, with columns in $\B$. The integer $\bar{h}$ is the rank-baggage for any approximation, equaling $h$ when $\beta = \norm{C_{\N}}$ and 0 in every other case. The running time of this algorithm is $O\left( mnr + T_{svd(C)} \right)$.
+
+\begin{framed}
+\begin{alg}\label{alg:seterr}
+{\bf SetError($C, C_{\N}, k, h$) }
+\end{alg}
+\noindent {\bf Input:} $C, C_{\N} \in \reals^{m \times n}$ and $k, h \in \mathbb{Z^+}$\\
+\noindent {\bf Output:} $\beta, \bar h$, the approximation error and rank-baggage
+%\noindent {\bf Steps:}
+%
+\begin{align*}
+1. \quad& [U_C, \Sigma_C, V_C] = \textbf{Reducedsvd}(C), \text{ where } \sigma_i := \Sigma_C (i, i)  & O\left( T_{svd(C)} \right) \\
+2. \quad& \text{Compute} \norm{C_{\N}}\\
+3. \quad& \text{Compute } k^* = \arg \max_i \sigma_i > \norm{C_{\N}} \\
+4. \quad& \textbf{if } k < k^* \textbf{ return } [\sigma_{k+1}, 0] \\
+ \quad& \textbf{if } k^* \leq k < k^* + h \textbf{ return } [(1 + \epsilon) \norm{C_{\N}}, 0] \\
+\quad& \textbf{if } k \geq k^* + h \textbf{ return } [\norm{C_{\N}}, h] 
+\end{align*}
+%
+\end{framed}
+
+
+%==== Construction ====%
+\begin{framed}
+\begin{alg}\label{alg:extractApprox}
+{\bf ExtractApproximation($C_{\B}, \Delta, k, \bar h$) }
+\end{alg}
+\noindent {\bf Input:} $C_{\B} \in \reals^{m \times n}, \Delta \in \reals^{n \times n}$ and $k, \bar h \in \mathbb{N}$\\
+\noindent {\bf Output:} $Y$, such that $Y=BX$, $\rank(Y) \leq k$, and error $\beta = \norm{C - Y}$ achieved according to Theorem \ref{main theorem}.
+%\noindent {\bf Steps:}
+%
+\begin{align*}
+1. \quad& [V_{\Delta} \Sigma_{\Delta} V_{\Delta}] = \textbf{Reducedsvd} (\Delta),\text{ where } V_{\Delta} = [V_+, V_0],\; \Sigma_{\Delta} = \begin{pmatrix} \Sigma_+ & 0 \\ 0 & \Sigma_0 \end{pmatrix} & O\left(T_{svd(C)} \right)\\
+2. \quad& R = \textbf{rankTruncate}\left( C_{\B} \; V_+ \sqrt{\Sigma_+}^{-1} V_+ ^T, k - \bar h \right)  & O\left( T_{svd(B)} \right)\\
+3. \quad& Y = R \; V_+ \sqrt{\Sigma_+} V_+ ^T  + C_{\B} V_0 V_0 ^T.
+\end{align*}
+%
+\end{framed}
+%===End Construction===%
+\noindent Here, $\textbf{rankTruncate}(G, a)$ is the top $a$ SVD truncation of $G$. We note that, for $k < k^* + h$, the rank-$h$ additive correction, $C_{\B} V_0 V_0 ^T$ is $\mathbf{0}$. This additive correction only features non-trivially when obtaining an approximation to $C$ that is as good as the projection, $C_{\B}$, but possibly of lower rank than $C_{\B}$. This, for instance, happens when $C$ is full rank and $k + h < r = rank(B) = rank(C_{\B})$. 

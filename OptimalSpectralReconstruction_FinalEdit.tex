@@ -67,7 +67,15 @@
 \newcommand{\U}{\mathcal{U}}
 \newcommand{\N}{\mathcal{N}}
 
+\newcommand{\G}{\Gamma}
+
+\newcommand{\0}{\ensuremath{\mathbf{0}}}
+\renewcommand{\>}{\succ}
+\newcommand{\<}{\prec}
+
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+\renewcommand{\iff}{\ensuremath{\Leftrightarrow}}
 
 %\title{Optimal Matrix Approximation  in the Spectral Norm (Draft) \\ }
 \title{Rank Restricted Spectral Approximation  Within a Subspace \\ }
@@ -87,33 +95,26 @@ Srinivas Nambirajan \footnote{Mathematics, Rensselaer Polytechnic Institute. Ema
 \\ 
 Let $C \in \reals^{m \times n}$ be a real matrix and $B \in \reals^{m \times r}$ be a matrix with orthogonal columns.
 We consider the classic problem of low-rank spectral approximation of $C$ with columns constrained to belong to the range of $B$. The computationally interesting case is when $r = o(n)$. While a similarly constrained approximation under the frobenius norm can be computed efficiently in $O(T_{svd(B)}+ mnr)$, there is no known algorithm for subspace constrained low-rank approximation under the spectral norm. We give an $O(T_{svd(C)})$ algorithm to find the best rank-$k$ spectral approximation of~$C$, within the range of $B$. It is open whether this problem can be solved it $O(T_{svd(B)})$.
+
 \section{Introduction}
 The best unrestricted rank-$k$ approximation to a matrix $C \in \reals^{m \times n}$ is $C_k$ in both spectral and Frobenius norms, where $C_k$ is the projection of $C$ onto its top-$k$ singular vectors (we use standard matrix notation which we summarize in section 1.1). Therefore, when $B \in \reals^{m \times r}$ spans the top $k$ singular vectors of $C$, $C_k$ is the best rank-$k$ approximation to $C$ having columns in the range of $B$. The approximation error in this case is $\sigma_{k+1}(C)$, the $(k+1)$-th largest singular value of $C$. 
 %When any $l$ singular vectors of $C$ is in $B$, $k \leq l \leq r$, then the best rank-$k$ approximation to $C$ in $B$ is given by the subspace spanned by the largest $k$ singluar vectors of $C$ contained in $B$, i.e., $\prod_{{B}, k}({C}) = C_{\{i\}}$ (see notation), where %$\{i\}$ is the set of indices of $k$ largest singular vectors of $C$ contained in $B$, and the minimum residual error is equal to $\sigma_{j}(C)$, where $j$ is the index of the largest singular vector of $C$ not included in $B$. 
 However, when $B$ spans a more general subspace, $\B$, there is no known algorithm to compute the best rank-$k$ approximation of $C$ with columns in $\B$. A natural approach is to first project $C$ onto $B$, and then take the best rank-$k$ approximation of this projection. This simple approach gives the best rank-$k$ approximation to $C$ within $B$ under the Frobenius norm (lemma 7 in \cite{BDM}), and the running time is $O(T_{svd(B)}+ mnr)$.  However, this simple approach is only 
 known to give a $\sqrt{2}$-approximation to the best subspace constrained rank-$k$ spectral approximation (lemma 7 in \cite{BDM}). 
-Here, we show how to compute this optimal spectral approximation. Specifically, we provide a deterministic algorithm that constructs $X \in \reals^{r \times n}$ which solves
-%$\prod_{{B}, k}({C})$. Instead, it produces $\tilde{\prod}_{{B}, k}({C})$, an approximation to ${\prod}_{{B}, k}({C})$, such that $\norm{{C} - \tilde{\prod}_{{B}, k}({C})} \leq \sqrt{2}\norm{{C} - \prod_{{B}, k}({C})}$, (lemma 7 of \cite{BDM}).
-%According to the authors' best knowledge, there is no known algorithm to compute $\prod_{{B}, k}({C})$ exactly. We show a deterministic algorithm to compute $\prod_{{B}, k}({C})$ optimally in time $O(T_{svd(C)})$, the  computational complexity of  SVD of $C$, and thus %solving the following optimization problem:\\
-%\begin{equation}\label{main problem}
-%(\emph{Constrained Spectral  Norm Matrix Approximation  Problem})
-%\end{equation}
-%\begin{align*}
+Here, we show how to compute this optimal spectral approximation. Specifically, we provide a deterministic algorithm that constructs $\G \in \reals^{r \times n}$ which solves
+
 \begin{equation}\label{main problem}
-\min_{\stackrel{X \in  \reals^{r \times n}}{rank({X}) \leq k}} \norm{{C} - {BX}}
-%\min_{\stackrel{X \in  \reals^{r \times n}}{}} \quad & \norm{{C} - {BX}} \\
-%\text{such that} \quad  rank({X}) \leq k  %,	\quad \forall {X} \in \reals^{r \times n}
+\min_{\stackrel{\G \in  \reals^{r \times n}}{rank({\G}) \leq k}} \norm{{C} - {B\G}}
 \end{equation}
-%\end{align*}
 Our main result is the following theorem.
 \begin{theorem}\label{thm:main}
 There is a deterministic algorithm (Algorithm \ref{alg:outline})
  running in time
-\math{O(T_{svd(C)}+mnr)} to construct \math{Y=BX} which solves the optimization
+\math{O(T_{svd(C)}+mnr)} to construct \math{Z=B \G} which solves the optimization
 problem in (\ref{main problem}).
 \end{theorem}
 \subsection{Notation}
-Matrices will be denoted by upper-case letters and we follow Parlett's convention by denoting symmetric matrices by letters symmetric about their vertical axis. If $B \in \reals^{m \times n}$ is an $m \times n$ matrix, $\B, \B'$ will denote its column space (or range) and row space respectively. Scalars will be denoted in lower case. We define other notations in-situ. 
+Matrices will be denoted by upper-case letters and we follow Parlett's convention by denoting symmetric matrices by letters symmetric about their vertical axis, excepting two common practices: matrices with orthonormal rows/columns will be denoted by $U, V$, and the spectrum-diagonal of a matrix will be denoted by $\Sigma$. If $B \in \reals^{m \times n}$ is an $m \times n$ matrix, $\B, \B'$ will denote its column space (or range) and row space respectively. Scalars will be denoted in lower case. We define other notations in-situ. 
 
 \subsection{Matrix Background}
 \begin{enumerate}
@@ -136,14 +137,13 @@ C & = C_k + C_{\rho - k}, \quad \text{ where } \quad C_k  = U_k\Sigma_kV_k^{\tex
 \end{align*} 
 The matrices $U_C = [U_k, U_{\rho - k}]$ and $V_C = [V_k, V_{\rho - k}]$ contain as orthonormal columns the left and right singular vectors of $C$ respectively. The diagonal matrix, $\Sigma$, contains the singular values, $\sigma_i > 0, 1 \leq i \leq \rho$, of $C$ in non-increasing order: $\sigma_{i} \geq \sigma_{j}\; \forall i \leq j$. In this manner, the top $k$ singular values are contained in $\Sigma_k$ and the rest contained in $\Sigma_{\rho - k}$. 
 
-\item The best rank-$k$ approximation of $C$ is $C_k = U_k\Sigma_kV_k^{\text{T}}$ that minimizes $\norm{C - Z}_{\alpha}$ over all matrices $X \in \reals^{m \times n}$ having rank at most $k$, in both spectral and Schatten norms - and as a result, in the Frobenius norm. 
+\item The best rank-$k$ approximation of $C$ is $C_k = U_k\Sigma_kV_k^{\text{T}}$ that minimizes $\norm{C - Z}_{\alpha}$ over all matrices $Z \in \reals^{m \times n}$ having rank at most $k$, in both spectral and Schatten norms - and as a result, in the Frobenius norm. 
 
 \item The Moore-Penrose pseudo-inverse of $C$ is denoted by $C^{\dagger} = V_C\Sigma_C^{-1}U_C^{\text{T}}$. For a symmetric matrix, $A$, we mean, by $\sqrt{A}$, the unique symmetric square root of $A$ given by $U_A \sqrt{\Sigma} U_A ^T$. 
 
 \item Given $B \in \reals^{m \times r}$, we denote by $C_{\B}$, the orthogonal projection of $C$ onto $\B$: $C_{\B} = BB^{\dagger}C$; and by $C_{\N}$, the residual of $C$ with respect to this projection: $C_{\N} = C - C_{\B}$. So $C_{\N}$ is orthogonal to $B$. 
-We define the matrix $C_{\B,k} \in \reals^{m \times n}$ to be the best rank-$k$ approximation of ${C}$ with columns in $\B$. 
-%$\norm{C - \Pi_{{B}, k}({C})} = \min_{\stackrel{X \in \reals^{r \times n}}{rank(X) = k}} \norm{C - BX}$
-\[\norm{C - C_{\B,k}} = \min_{\stackrel{Z \in \reals^{r \times n}}{rank(Z) = k}} \norm{C - BZ}\]
+We define the matrix $C_{\B,k} \in \reals^{m \times n}$ to be the best rank-$k$ approximation of ${C}$ with columns in $\B$:
+\[ C_{\B, k} = \arg \min_{\stackrel{\G \in \reals^{r \times n}}{rank(\G) = k}} \norm{C - B\G}\]
 In general, $C_{\B,k} \neq (C_{\B})_k$. 
 
 \item The semidefinite partial ordering, $\Leq$, is defined by $X \Leq Y$ ($Y$ dominates $X$), if and only if $Y - X$ is positive semidefinite. That every restriction of $Y$ must dominate the corresponding restriction of $X$ is a useful observation, formally contained in the following lemma.
@@ -152,7 +152,7 @@ Let $X = F^TF$ and  $Y$ be SPSD matrices. Let SVD of $Y = V_Y\Sigma_Y V_Y^T,$ $V
 $Y$ - so \math{YV_0=0}. Then, 
 \[X \Leq Y \quad \text{  if and only if } \quad
 \begin{cases}
-\quad XV_0 = 0, \\[3pt]
+\quad XV_0 = \0, \\[3pt]
 \norm{F \sqrt{Y^{\dagger}} } \leq 1.
 \end{cases}.
 \]
@@ -161,11 +161,11 @@ $Y$ - so \math{YV_0=0}. Then,
 \end{enumerate}
 
 \section{Main Result}
-Let $C \in \reals^{m \times n}, \; m \geq n$ and let $B \in \reals^{m \times r}$ be a basis for $\B$, an $r$-dimensional subspace of $\reals^m$. Any matrix of rank $k \leq r$ with columns in $\B$ may be written is $Y = BZ$, with $rank(Z) = k$. We define the critical rank, $k^*$, as the number of singular values of $C$ strictly larger than the orthogonal complement of $C$ with respect to $\B$ in (spectral) norm:
+Let $C \in \reals^{m \times n}, \; m \geq n$ and let $B \in \reals^{m \times r}$ be a basis for $\B$, an $r$-dimensional subspace of $\reals^m$. Any matrix of rank $k \leq r$ with columns in $\B$ may be written is $Z = B \G$, with $rank(\G) = k$. We define the critical rank, $k^*$, as the number of singular values of $C$ strictly larger than the orthogonal complement of $C$ with respect to $\B$ in (spectral) norm:
 \begin{eqnarray}\label{critical rank inequality}
 \sigma_{k^*}(C) > \norm{C_{\N}} \geq \sigma_{k^*+1}(C).
 \end{eqnarray}
-Our main observation is that the best rank-$k$ approximant, $C_{\B, k}$, with columns in $\B$, to $C$ is, for the most part, either
+Our main observation is that the best rank-$k$ approximation, $C_{\B, k}$, with columns in $\B$, to $C$ is for the most part either
 \begin{itemize}
 \item as good as the best rank-$k$ approximant, $C_k$, without any subspace-restrictions on its columns, or
 \item as good as the best subspace restricted approximant, $C_{\B}$, without any rank restrictions.
@@ -173,33 +173,32 @@ Our main observation is that the best rank-$k$ approximant, $C_{\B, k}$, with co
 Formally:
 \begin{theorem}\label{main theorem}
 Given $1 \leq k < r,$
-%Let $A \in \reals^{m\times n}, n \leq m, B \in \reals^{m\times r}, Y \in \reals^{m\times n}$ with $Y = BX$ for some $X \in \reals^{r\times n}$ and $rank(Y) \leq k$, $1 \leq k \leq n$. Furthermore, let $ A_S = BB^{\dagger} A, A_N = A - A_S$, with $\sigma_{j}(A) > %\norm{A_N} \geq \sigma_{j+1}(A)$ for some $j$. Then
-%[ \min_{\stackrel{Y = BX}{rank(Y) \leq k}} \norm{A - Y} = \left\{ \begin{array}{ll} \sigma_{k+1}(A), & \quad k < j \\ \norm{A_N}, & \quad k \geq j \end{array} \right.  \]
-\[ \norm{C - C_{\B,k}} = \left\{ \begin{array}{ll} \norm{C - C_k} = \sigma_{k+1}(C), & \quad k < k^*,\\[5 pt] (1+\epsilon)\norm{C_{\N}}, & \quad k^* \leq k < k^*+h, \text{ }\epsilon > 0 \\[5 pt] 
-\norm{C - C_{\B}} = \norm{C_{\N}}, & \quad k \geq k^*+h,  \end{array} \right. \]
-where $h=\rank(A_BV_0V_0^T)$ 
-and \math{V_0} is a basis for the top singular subspace of $A_N$.
+\[ \norm{C - C_{\B,k}}  \left\{ \begin{array}{ll} = \norm{C - C_k} = \sigma_{k+1}(C), & \quad k < k^*,\\
+[5 pt] \leq (1+\epsilon)\norm{C_{\N}}, & \quad k^* \leq k < k^*+h, \text{ } \forall \epsilon > 0 \\
+[5 pt] = \norm{C - C_{\B}} = \norm{C_{\N}}, & \quad k \geq k^*+h,  \end{array} \right. \]
+where $h=\rank(C_{\B} V_0V_0^T)$ 
+and \math{V_0} is a basis for the top singular subspace of $C_{\N}$.
 \end{theorem}
 
-\noindent We note that the effect of the subspace for column-restriction, $\B$, on the spectral approximation error is to place an upper bound, $k^*$, on the rank up to which we may expect to do as well as a subspace-unrestricted rank-$k$ approximation to $C$. When the rank of the approximation meets or exceeds this allowance, $k^*$, we obtain an approximation that provides the same (or almost the same) error as $C_{\B}$, the best $\B$-restricted approximation to $C$ possible. As a typical case, consider a full rank $C$. If the \emph{rank allowance} provided by $\B$ is too small - $k^* << r$, say - then $C_{\B, k\leq k^*}$ is as good an approximation to $C$ as $C_{\B}$ (which is of rank $r$), but with far lesser rank. If, on the other hand, $k^* = r$, we see that restricting the columns to belong to $\B$ doesn't affect the approximation at all, and $C_{\B, k \leq k^*}$ is as good as $C_k$. We refer the reader to Section 3 for the proof of Theorem~\ref{main theorem}. 
+\noindent We note that the effect of the subspace for column-restriction, $\B$, on the spectral approximation error is to place an upper bound, $k^*$, on the rank up to which we may expect to do as well as a subspace-unrestricted rank-$k$ approximation to $C$. When the rank of the approximation meets or exceeds this allowance, $k^*$, we obtain an approximation that provides the same (or almost the same) error as $C_{\B}$, the best $\B$-restricted approximation to $C$ possible. As a typical case, consider a full rank $C$. If the \emph{rank allowance}, $k^*$, provided by $\B$ is very small - $k^* \ll r$, say - then $C_{\B,  k^*}$ is as good an approximation to $C$ as $C_{\B}$ (which is of rank $r$), but with far lesser rank. If, on the other hand, $k^* = r$, we see that restricting the columns to belong to $\B$ doesn't affect the approximation at all, and $C_{\B, k \leq k^*}$ is as good as $C_k$. We refer the reader to Section 3 for the proof of Theorem~\ref{main theorem}. 
 
 \subsection{Construction Of Subspace Restricted Low Rank Approximations}
-We now turn to the construction of approximations having the properties promised in Theorem~ \ref{main theorem}. The construction-strategy, as in Sou and Rantzer, will be to remove the explicit subspace-restriction, but retain the rank-restriction, by constructing a series of transformations of MAIN, eventually leading to a problem of approximating a modified matrix appropriately. We then extract a subspace restricted low-rank approximation to MAIN by inverse-transforming the solution to this equivalent problem.
+We now turn to the construction of approximations having the properties promised in Theorem~ \ref{main theorem}. The construction-strategy, as in Sou and Rantzer, will be to remove the explicit subspace-restriction, but retain the rank-restriction, by effectively constructing a series of transformations of problem (\ref{main problem}) to a problem of approximating a modified matrix appropriately. We then extract a solution to (\ref{main problem}) by inverse-transforming the solution to this equivalent problem.
 
 \subsubsection{Removing The Explicit Subspace Restriction}
 Suppose spectral error $\beta \geq \norm{C_{\N}}$ is achievable. So
- $\exists Y = BZ$, such that $\norm{C - Y} \leq \beta$. Then,
+ $\exists Z = B \G$, such that $\norm{C - Z} \leq \beta$. Then,
 \begin{align*}
-&\phantom{\iff}\norm{C - Y} \leq \beta \\[3pt]
-& \iff \left( {C} - {Y} \right)^T \left( {C} - {Y} \right) 
+&\phantom{\iff}\norm{C - Z} \leq \beta \\[3pt]
+& \iff \left( {C} - {Z} \right)^T \left( {C} - {Z} \right) 
 \Leq \beta^2 I \\
-& \iff \left( {C}_N + {C}_B - {Y} \right)^T \left( {C}_N + {C}_B - {Y} \right) \Leq \beta^2 I \\
-& \iff \left( {C}_B - {Y} \right)^T \left( {C}_B - {Y} \right) \Leq \beta^2 I - {C}_N ^T {C}_N, \qquad (\text{since }  {C}_N^T({C}_B - {Y})=0).
+& \iff \left( {C}_{\N} + {C}_{\B} - {Z} \right)^T \left( {C}_{\N} + {C}_{\B} - {Z} \right) \Leq \beta^2 I \\
+& \iff \left( {C}_{\B} - {Z} \right)^T \left( {C}_{\B} - {Z} \right) \Leq \beta^2 I - {C}_{\N} ^T {C}_{\N}, \qquad (\text{since }  {C}_{\N}^T({C}_{\B} - {Z})=0).
 \end{align*}
 Define 
-$\Delta = \beta^2 I - {C}_N ^T {C}_N$, and let the \emph{full} SVD of $C_N$ be 
-\[ C_N = U_N\Sigma_NV_N^T, \quad U_NU_N^T=U_N^TU_N=I_m, \quad V_NV_N^T = V_N^TV_N = I_n. \]
-Then, $\Delta = \beta^2 I - {C}_N ^T {C}_N = V_N(\beta^2I - \Sigma_N^2)V_N^T,$ and can be written as
+$\Delta = \beta^2 I - {C}_{\N} ^T {C}_{\N}$, and let the \emph{full} SVD of $C_{\N}$ be 
+\[ C_{\N} = U_N\Sigma_NV_N^T, \quad U_N U_N^T=U_N^TU_N=I_m, \quad V_NV_N^T = V_N^TV_N = I_n. \]
+Then, $\Delta = \beta^2 I - {C}_{\N} ^T {C}_{\N} = V_N(\beta^2I - \Sigma_N^2)V_N^T,$ and can be written as
 \[ \Delta =  [  V_+ \quad V_0  ]
 \begin{bmatrix}
 &\Sigma_+ & 0 &\\
@@ -211,124 +210,104 @@ Then, $\Delta = \beta^2 I - {C}_N ^T {C}_N = V_N(\beta^2I - \Sigma_N^2)V_N^T,$ a
 \end{bmatrix} = V_+ \Sigma_+ V_+^T \]
 where the orthonormal bases $V_+$ and $V_0$ correspond to the positive and zero eigenvalues of $\Delta$ respectively. We observe that
 \math{V_0} spans the subspace corresponding to the top singular
-value of \math{C_N}.
+value of \math{C_{\N}}.
 We can now apply Lemma \ref{basic lemma} with the null space of 
 $\Delta$ spanned by $V_0$. Thus, summarizing the results we have
 \begin{lemma}\label{combined}
 \begin{eqnarray}\label{equation not invert}
-\left( {C}_B - {Y} \right)^T \left( {C}_B - {Y} \right) \Leq \Delta 
+\left( {C}_{\B} - {Z} \right)^T \left( {C}_{\B} - {Z} \right) \Leq \Delta 
 \text{\quad if and only if \quad }
 \begin{cases}
-\quad (C_B - Y)V_0 = 0, \\
-\norm{\left( {C}_B - {Y} \right) \sqrt{\Delta^{\dagger}} } \leq 1,
+\quad (C_{\B} - Z)V_0 = 0, \\
+\norm{\left( {C}_{\B} - {Z} \right) \sqrt{\Delta^{\dagger}} } \leq 1,
 \end{cases}
 \end{eqnarray}
 \end{lemma}
 \noindent which is a generalization of the case when \math{\Delta} is invertible (in which case \math{V_0} is set to \textbf{0} and \math{\Delta^\dagger=\Delta^{-1}}).
 Using the row basis  $[V_+ \quad V_0]^T$, we can write
 %\begin{align*}
-\[Y = Z_1V_+^T + Z_2V_0^T\]
+\[Z = Z_+V_+^T + Z_0V_0^T\]
 %\end{align*}
 Then, from (\ref{equation not invert})
 \begin{align*}
-(C_B - Y)V_0 = 0 & \iff (C_B - Z_1V_+^T - Z_2V_0^T)V_0 = 0\\
-& \iff C_BV_0 - Z_2 = 0, \quad V_+ \perp V_0\\
-& \iff Z_2 = C_BV_0\\
-& \iff Y = Z_1V_+^T + C_BV_0V_0^T
+(C_{\B} - Z)V_0 = 0 & \iff (C_{\B} - Z_+V_+^T - Z_0V_0^T)V_0 = 0\\
+& \iff C_{\B}V_0 - Z_0 = 0, \quad V_+ \perp V_0\\
+& \iff Z_0 = C_{\B}V_0\\
+& \iff Z = Z_+V_+^T + C_{\B}V_0V_0^T
 \end{align*}
-Using this $Y$ and the second condition in (\ref{equation not invert})
+Using this $Z$ and the second condition in (\ref{equation not invert})
 \begin{align*}
-\quad \norm{\left( {C}_B - {Y} \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1 \quad \iff & \quad \norm{\left( {C}_B - C_BV_0V_0^T - Z_1V_+^T \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1,\\
-\iff & \quad \norm{\left(C_BV_+V_+^T - Z_1V_+^T \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1,\\
-\iff & \quad \norm{C_BV_+{\Sigma}^{-1/2}_+V_+^T  - Z_1{\Sigma}^{-1/2}_+V_+^T } \leq 1\\
-\iff & \quad \norm{\tilde{C} - \tilde{Y}} \leq 1
+\quad \norm{\left( {C}_{\B} - {Z} \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1 \quad \iff & \quad \norm{\left( {C}_{\B} - C_{\B}V_0V_0^T - Z_+V_+^T \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1,\\
+\iff & \quad \norm{\left(C_{\B}V_+V_+^T - Z_+V_+^T \right) V_+ {\Sigma}^{-1/2}_+V_+^T } \leq 1,\\
+\iff & \quad \norm{C_{\B}V_+{\Sigma}^{-1/2}_+V_+^T  - Z_+{\Sigma}^{-1/2}_+V_+^T } \leq 1\\
+\iff & \quad \norm{\tilde{C} - \tilde{Z}} \leq 1
 \end{align*}
-where, \quad $\tilde{C} = C_BV_+{\Sigma}^{-1/2}_+V_+^T = C_B \sqrt{\Delta^{\dagger}}$, \quad and \quad $\tilde{Y} = Z_1{\Sigma}^{-1/2}_+V_+^T$.
-Since the row, column spaces of $\tilde Y$ are contained in the row, column spaces of $\tilde C$, we may obtain $\tilde{Y}$ that satisfies the above condition by gathering all the singular components of $\tilde{C}$ with singular values strictly larger than 1. 
+where, \quad $\tilde{C} = C_{\B}V_+{\Sigma}^{-1/2}_+V_+^T = C_{\B} \sqrt{\Delta^{\dagger}}$, \quad and \quad $\tilde{Z} = Z_+{\Sigma}^{-1/2}_+V_+^T$.
+Since the row, column spaces of $\tilde Z$ are contained in the row, column spaces of $\tilde C$, we may obtain $\tilde{Z}$ that satisfies the above condition by gathering all the singular components of $\tilde{C}$ with singular values strictly larger than 1. 
 
 \subsubsection{Extracting The Subspace-Restricted Low Rank Approximation}
 Since \math{V_+,V_0} are mutually orthogonal,
-$$\rank(Y)=\rank(Z_1V_+^T)+\rank(C_BV_0V_0^T)=\rank(Z_1V_+^T)+h.$$
+$$\rank(Z)=\rank(Z_+V_+^T)+\rank(C_{\B}V_0V_0^T)=\rank(Z_+V_+^T)+h.$$
 So, if error \math{\beta} can be achieved with rank 
-\math{k+h}, we pick $\tilde Y$ as $(\tilde C)_k = (C_B\sqrt{\Delta^{\dagger}} )_k$.  We note that 
-\[ Z_1 V_+ ^T = Z_1 {\Sigma}^{-1/2}_+V_+ ^T V_+ \Sigma^{1/2} V_+ ^T = \tilde Y \sqrt{\Delta},  \]
-and $Y$ can be constructed as
-\[ Y = \tilde Y \sqrt{\Delta} + C_B V_0 V_0 ^T. \]
-%We show that this truncation ensures $\rank(\tilde{Y}) \leq k^*$ (Lemma \ref{rank Y tilde}). Therefore, gathering a $k^*$ number of singular components of $\tilde{C}$ to form $\tilde{Y}$ is sufficient to guarantee a solution $Y$ that achieves minimum error $\norm{C_N}$. 
+\math{k+h}, we pick $\tilde Z$ as $(\tilde C)_k = (C_{\B}\sqrt{\Delta^{\dagger}} )_k$.  We note that 
+\[ Z_+ V_+ ^T = Z_+ {\Sigma}^{-1/2}_+V_+ ^T V_+ \Sigma^{1/2} V_+ ^T = \tilde Z \sqrt{\Delta},  \]
+and $Z$ can be constructed as
+\[ Z = \tilde Z \sqrt{\Delta} + C_{\B} V_0 V_0 ^T. \]
+%We show that this truncation ensures $\rank(\tilde{Z}) \leq k^*$ (Lemma \ref{rank Z tilde}). Therefore, gathering a $k^*$ number of singular components of $\tilde{C}$ to form $\tilde{Z}$ is sufficient to guarantee a solution $Z$ that achieves minimum error $\norm{C_{\N}}$. 
 We summarize our discussion in the following lemma.
 \begin{lemma}\label{achievable}
-Let \math{\beta\ge\norm{C_N}} and let \math{\Delta=\beta^2I-C_N^TC_N} with
+Let \math{\beta\ge\norm{C_{\N}}} and let \math{\Delta=\beta^2I-C_{\N}^TC_{\N}} with
 \math{V_0} as the basis for its nullspace. Let 
-\math{h=\rank(C_BV_0V_0^T)} (if \math{\Delta} is invertible then
+\math{h=\rank(C_{\B}V_0V_0^T)} (if \math{\Delta} is invertible then
 \math{V_0=\bm0} and \math{h=0}), and suppose error \math{\beta} can be achieved with 
 rank \math{k+h}.
 Then 
 $$
-Y=(C_B \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_BV_0V_0^T
+Z=(C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B}V_0V_0^T
 $$
-is a solution satisfying \math{\norm{C-Y}\le\beta}, 
-\math{\rank(Y)\le k+h} and \math{Y=BX} for some \math{X\in\RR^{r\times n}}.
+is a solution satisfying \math{\norm{C-Z}\le\beta}, 
+\math{\rank(Z)\le k+h} and \math{Z=B \G} for some \math{\G\in\RR^{r\times n}}.
 \end{lemma}
-\remove{
-\begin{lemma}\label{kstar h}
-We can find $Y \in B$, with $rank(Y) = k^* + h$, such that, $\norm{C - Y} = \norm{C_N}$.\\
-Furthermore, 
-\[ Y = \Big((BB^{\dagger}C)V_+{\Sigma}^{-\frac{1}{2}}_+V_+^T\Big)_{k^*}V_+{\Sigma}^{\frac{1}{2}}_+V_+^T + (BB^{\dagger}C)V_0V_0^T\]
-\end{lemma}
-\noindent We can use similar arguments to have the following lemmas.
-\begin{lemma}\label{k less kstar}
-If \text{ }$k < k^*$,
-\[ \norm{C - \Pi_{B, k}(C)} = \sigma_{k+1}(C), \] and
-\[ \Pi_{B, k}(C) = \Big((BB^{\dagger}C)V_+{\Sigma}^{-\frac{1}{2}}_+V_+^T\Big)_{k}V_+{\Sigma}^{\frac{1}{2}}_+V_+^T\]
-\end{lemma}
-\noindent \\
-However, when $k^* \leq k < k^*+h$, we may not achieve the minimum error $\norm{C_N}$. Instead, we can obtain an approximation with error arbitrarily close to $\norm{C_N}$.
-\begin{lemma}\label{k less kstar h}
-Let $\text{ }\beta = (1 + \epsilon)\norm{C_N}, \quad \epsilon > 0$. Then, 
-\[ \Pi_{B, k}(C) = \Big(BB^{\dagger} C {\Delta}^{-\frac{1}{2}}_{\epsilon}\Big)_k {\Delta}^{\frac{1}{2}}_{\epsilon}\]
- where \quad $\Delta_{\epsilon}  = (1+\epsilon)^2\norm{C_N}^2I_n - C_N^TC_N$.
-\end{lemma}
-\noindent \\
-}
 
 \subsubsection{The Algorithm}
-An algorithm that solves problem (\ref{main problem}) results naturally from our analysis above. This algorithm is presented as \textbf{Su}bspace \textbf{Re}stricted \textbf{S}pectral \textbf{A}pproximation below. It is split into modules both for the purposes of exposition and to serve as units of improvement in runtime of the overall algorithm.
+An algorithm that solves problem (\ref{main problem}) results naturally from our analysis above. This algorithm is presented as \textbf{Su}bspace \textbf{Re}stricted \textbf{S}pectral \textbf{A}pproximation below. It is split into modules both for the purposes of exposition and to serve as units of improvement in runtime of the overall algorithm. We also provide the leading running times - running times of operations that are $\Omega(T_{svd(B)})$ - next to the corresponding operations.
 %% ============ The Algorithm begins ==================
 \begin{framed}
 \begin{alg}\label{alg:outline}
 {\bf SuReSpectralApprox($C$, $B$, $k$, $\epsilon$) }
 \end{alg}
-\noindent {\bf Input:} $C \in \reals^{m \times n}$, $B \in \reals^{m \times r}$, a $k$ : $1 \leq k \leq n$, accuracy parameter $\epsilon > 0$.\\
-\noindent {\bf Output:} $Y$, such that $Y=BX$, $\rank(Y) \leq k$, and error $\beta = \norm{C - Y}$ achieved according to Theorem \ref{main theorem}.
+\noindent {\bf Input:} $C \in \reals^{m \times n}$, $B \in \reals^{m \times r}$, $k$ : $1 \leq k \leq n$, and $\epsilon > 0$.\\
+\noindent {\bf Output:} $Z$ such that $Z=B \G$, $\rank(Z) \leq k$, with error $\beta = \norm{C - Z}$ achieved according to Theorem \ref{main theorem}.
 %\noindent {\bf Steps:}
 %
 \begin{align*}
-1. \quad& [C_{\B}, C_{\N}] = \textbf{Orthosplit}(C, B) \\
-2. \quad& h = \textbf{rank}(C_{\B} V_0 V_0 ^T) \\
-3. \quad& [\beta,\bar h] = \textbf{SetError}(C, C_{\N}, k, h, \epsilon) \\
-4. \quad& \Delta = \beta^2 I - C_{\N} ^T C_{\N} \\
-5. \quad& Y = \textbf{ExtractApproximation}(C_{\B}, \Delta, k, \bar h) \\
+1. \quad& [C_{\B}, C_{\N}] = \textbf{Orthosplit}(C, B) & O(mnr + T_{svd(B)})\\
+2. \quad& h = \textbf{rank}(C_{\B} V_0 V_0 ^T)  & O\left(T_{svd(B)} \right)\\
+3. \quad& [\beta,\bar h] = \textbf{SetError}(C, C_{\N}, k, h, \epsilon) & O\left( T_{svd(C)} \right) \\
+4. \quad& \Delta = \beta^2 I - C_{\N} ^T C_{\N} & \\
+5. \quad& Z = \textbf{ExtractApproximation}(C_{\B}, \Delta, k, \bar h) & O\left( T_{svd(C)} \right) \\
 \end{align*}
 %
 \end{framed}
 %% ============ The Algorithm ends ==================
-We note that the approximation error may be obtained prior to obtaining the approximation itself. The integer, $h$, is the inherent slack in rank: optimal approximations with rank, $k$, $k^* \leq k < k+ h$, are equivalently good with respect to the spectral approximation error. All such approximations yield an error $(1+\epsilon) \norm{C_{\N}}$. So we cannot hope to lower the approximation error by increasing the rank of the approximation, if $k^* \leq k < k + h - 1$. The integer, $\bar{h}$, is the \emph{actual} slack in rank: if $k \geq k^* + h$, $\bar{h} = h$, and 0 otherwise.
+
+\noindent We note that the approximation error may be obtained prior to obtaining the approximation itself. The integer, $h$, is the rank-baggage for obtaining an approximation, $C_{\B, k}$, that is as good as the best possible approximation, $C_{\B}$, to $C$, with columns in $\B$. The integer $\bar{h}$ is the rank-baggage for any approximation, equaling $h$ when $\beta = \norm{C_{\N}}$ and 0 in every other case. The running time of this algorithm is $O\left( mnr + T_{svd(C)} \right)$.
 
 \begin{framed}
 \begin{alg}\label{alg:seterr}
 {\bf SetError($C, C_{\N}, k, h$) }
 \end{alg}
 \noindent {\bf Input:} $C, C_{\N} \in \reals^{m \times n}$ and $k, h \in \mathbb{Z^+}$\\
-\noindent {\bf Output:} $\beta, \bar h$, the approximation error and rank-correction
+\noindent {\bf Output:} $\beta, \bar h$, the approximation error and rank-baggage
 %\noindent {\bf Steps:}
 %
 \begin{align*}
-1. \quad& [U_C, \Sigma_C, V_C] = \textbf{Reducedsvd}(C), \quad \text{where } \sigma_i = \Sigma_C (i, i) \\
+1. \quad& [U_C, \Sigma_C, V_C] = \textbf{Reducedsvd}(C), \text{ where } \sigma_i := \Sigma_C (i, i)  & O\left( T_{svd(C)} \right) \\
 2. \quad& \text{Compute} \norm{C_{\N}}\\
 3. \quad& \text{Compute } k^* = \arg \max_i \sigma_i > \norm{C_{\N}} \\
 4. \quad& \textbf{if } k < k^* \textbf{ return } [\sigma_{k+1}, 0] \\
-5. \quad& \textbf{if } k^* \leq k < k^* + h \textbf{ return } [(1 + \epsilon) \norm{C_{\N}}, 0] \\
-6. \quad& \textbf{if } k \geq k^* + h \textbf{ return } [\norm{C_{\N}}, h] 
+ \quad& \textbf{if } k^* \leq k < k^* + h \textbf{ return } [(1 + \epsilon) \norm{C_{\N}}, 0] \\
+\quad& \textbf{if } k \geq k^* + h \textbf{ return } [\norm{C_{\N}}, h] 
 \end{align*}
 %
 \end{framed}
@@ -340,13 +319,13 @@ We note that the approximation error may be obtained prior to obtaining the appr
 {\bf ExtractApproximation($C_{\B}, \Delta, k, \bar h$) }
 \end{alg}
 \noindent {\bf Input:} $C_{\B} \in \reals^{m \times n}, \Delta \in \reals^{n \times n}$ and $k, \bar h \in \mathbb{N}$\\
-\noindent {\bf Output:} $Y$, such that $Y=BX$, $\rank(Y) \leq k$, and error $\beta = \norm{A - Y}$ achieved according to Theorem \ref{main theorem}.
+\noindent {\bf Output:} $Z$, such that $Z=B \G$, $\rank(Z) \leq k$, and error $\beta = \norm{C - Z}$ achieved according to Theorem \ref{main theorem}.
 %\noindent {\bf Steps:}
 %
 \begin{align*}
-1. \quad& [V_{\Delta} \Sigma_{\Delta} V_{\Delta}] = \textbf{svd} (\Delta), \quad \text{where } V_{\Delta} = [V_+, V_0], \quad \Sigma_{\Delta} = \begin{pmatrix} \Sigma_+ & 0 \\ 0 & \Sigma_0 \end{pmatrix}\\
-2. \quad& R = \textbf{rankTruncate}\left( C_{\B} \; V_+ \sqrt{\Sigma_+}^{-1} V_+ ^T, k - \bar h \right) \\
-3. \quad& Y = R \; V_+ \sqrt{\Sigma_+} V_+ ^T  + C_{\B} V_0 V_0 ^T.
+1. \quad& [V_{\Delta} \Sigma_{\Delta} V_{\Delta}] = \textbf{Reducedsvd} (\Delta),\text{ where } V_{\Delta} = [V_+, V_0],\; \Sigma_{\Delta} = \begin{pmatrix} \Sigma_+ & 0 \\ 0 & \Sigma_0 \end{pmatrix} & O\left(T_{svd(C)} \right)\\
+2. \quad& R = \textbf{rankTruncate}\left( C_{\B} \; V_+ \sqrt{\Sigma_+}^{-1} V_+ ^T, k - \bar h \right)  & O\left( T_{svd(B)} \right)\\
+3. \quad& Z = R \; V_+ \sqrt{\Sigma_+} V_+ ^T  + C_{\B} V_0 V_0 ^T.
 \end{align*}
 %
 \end{framed}
@@ -354,7 +333,7 @@ We note that the approximation error may be obtained prior to obtaining the appr
 \noindent Here, $\textbf{rankTruncate}(G, a)$ is the top $a$ SVD truncation of $G$. We note that, for $k < k^* + h$, the rank-$h$ additive correction, $C_{\B} V_0 V_0 ^T$ is $\mathbf{0}$. This additive correction only features non-trivially when obtaining an approximation to $C$ that is as good as the projection, $C_{\B}$, but possibly of lower rank than $C_{\B}$. This, for instance, happens when $C$ is full rank and $k + h < r = rank(B) = rank(C_{\B})$. 
 \section{Proofs}
 \subsection{Lemma \ref{basic lemma}}
-The proof of lemma \ref{basic lemma} is intuitive; we state the intuition first, followed by a formal proof. We first note that $X \Leq Y$ implies that the action of $Y$ is at least as large as the action of $X$ everywhere in $\RR^n$. Clearly, this implies that, $X$ cannot have a non-zero action in the space where $Y$ has zero action, leading to $X V_0 = 0$. This also implies that, in the space where $Y$ has non-zero action in general, its pseudo inverse must reduce a vector more than $X$ magnifies it, which is essentially the intuition contained in $\norm{F \sqrt{Y^{\dagger}} } \leq 1$. 
+The proof of lemma \ref{basic lemma} is intuitive; we state the intuition first, followed by a formal proof. We first note that $X \Leq Y$ implies that the action of $Y$ is at least as large as the action of $X$ everywhere in $\RR^n$. Clearly, this implies that, $X$ cannot have a non-zero action in the space where $Y$ has zero action, leading to $X V_0 = \0$. This also implies that, in the space where $Y$ has non-zero action in general, its pseudo inverse must reduce a vector more than $X$ magnifies it, which is essentially the intuition contained in $\norm{F \sqrt{Y^{\dagger}} } \leq 1$. 
 
 \begin{proof}
 We prove the equivalence between $X \Leq Y$ and $\norm{F \sqrt{Y^{\dagger}} } \leq 1$, $X V_0 = \mathbf{0}$ by contraposition. First, we prove the forward implication. Suppose $X V_0 \neq \mathbf{0}$. We note that 
@@ -376,7 +355,7 @@ Let us write, without loss of generality, $z = z_1 + z_2$, where $z_1 = V_+ y_1,
 z^T Y z = z_1 ^T Y z_1 < z^T X z &= z_1 ^T X z_1 + z_2 ^T X z_2 + 2 z_1 ^T X z_2 \quad (\text{since }X \text{ is symmetric})\\
 &= z_1 ^T X z_1 + y_2 ^T V_0 ^T X V_0 y_2 + 2 z_1 ^T X V_0 y_2.
 \end{align*}
-We note that this cannot be true if both $XV_0 = 0$ (whence $X V_0 y_2 = 0$) and $z_1 ^T Y z_1 > z_1 ^T X z_1$. So either $XV_0 \neq 0$ or $z_1 ^T Y z_1 < z_1 ^T X z_1$. The former immediately negates $XV_0 = \mathbf{0}$. Suppose the latter is true. It follows that
+We note that this cannot be true if both $XV_0 = \0$ (whence $X V_0 y_2 = 0$) and $z_1 ^T Y z_1 > z_1 ^T X z_1$. So either $XV_0 \neq \0$ or $z_1 ^T Y z_1 < z_1 ^T X z_1$. The former immediately negates $XV_0 = \mathbf{0}$. Suppose the latter is true. It follows that
 \[ z_1 ^T \sqrt{Y^{\dagger}}^T Y \sqrt{Y^{\dagger}} z_1 = z_1 ^T z_1 = \norm{z_1}^2 < z_1 ^T \sqrt{Y^{\dagger}}^T X \sqrt{Y^{\dagger}} z_1. \]
 We simply define $\hat{z_1} = z_1 / \norm{z_1}$ now to get 
 \[ 1 < \hat{z_1} \sqrt{Y^{\dagger}}^T X \sqrt{Y^{\dagger}} \hat{z_1} = \hat{z_1} \sqrt{Y^{\dagger}}^T F^T F \sqrt{Y^{\dagger}} \hat{z_1}, \]
@@ -385,109 +364,83 @@ whence
 negating $\norm{F \sqrt{Y^{\dagger}}} \leq 1$, proving the backward implication and establishing the equivalence promised in lemma \ref{basic lemma}.
 \end{proof}
 
-% -----------------------------------------------
-%\noindent The following lemma shows that we need a $Y$ of rank at least $k^*+h$ in order to guarantee the minimum achievable error.
-%
 \subsection{Proof of Theorem \ref{main theorem}}
-%
-%\subsection{Proof of \quad $\rank(\tilde{Y}) \leq k^*$}
-%\begin{proof}\quad  Using the row basis  $[V_+ \quad V_0]^T$, we can write
 \begin{proof}
-We recall from Section 2 that $\beta \geq \norm{C_{\N}}$ is the achievable error, and that $\norm{{C} - {Y}} \leq \beta$ iff $\norm{\tilde{C} - \tilde{Y}} \leq 1$,
-%
-where $\tilde{C} = C_{\B} \sqrt{\Delta^{\dagger}}$, and $\tilde{Y} = Z_1{\Sigma}^{-1/2}_+V_+^T$.
-%where \quad $\tilde{C} = C_B ({{{\Delta}}^{\dagger}})^\frac{1}{2}, \quad \tilde{Y} = {Y} ({{{\Delta}}^{\dagger}})^\frac{1}{2}, \quad {\Delta} = (\beta^2I_n - {C}_N ^T {C}_N), \quad {{{\Delta}}^{\dagger}}$ is the pseudo-inverse of ${\Delta}$. \\
-The least-rank solution to the latter inequality can be found by collecting singular value components of $\tilde{C}$ that are strictly larger than 1, i.e., $\tilde{Y} = \tilde{C}_{\tau}$, where $\tau$ is the number of singular values of $\tilde{C}$ that are larger than 1. Since we transform $\tilde Y$ to obtain $C_{\B, k}$, this allows us to establish a relationship between $\beta$ and the rank-restriction, $k$, to prove the three cases mentioned in the theorem.\\  
-\noindent First, let $ \sigma^{(r)}(M)$ denote the  number of singular values of matrix $M$ that are larger than $r$, and $\lambda_{+}(M)$, the number of positive eigenvalues of $M$.
-So $\sigma^{(1)}(M) = \lambda_{+}(M^TM - I)$ and
-\[ \sigma^{(r)}(M) =  \lambda_{+}( M^TM - r^2 I) \quad \forall r > 0 \]
-%\textbf{Proposition 2.1}: \quad $(I - \tilde{C}^T\tilde{C})$ and $(\beta^2I - {{C}}^T{{C}})$ have same inertia, i.e., same number of positive, negative, and zero eigenvalues. \quad \emph{Proof}: \quad see \ref{claim 1}\\
-%
-\subsubsection{Proving $\norm{C - C_{\B, k}} = \norm{C_{\N}}$, for $k \geq k^* + h$}
-Suppose that
+We recall from Section 2 that $\beta \geq \norm{C_{\N}}$ is the achievable error, and that $\norm{{C} - {Z}} \leq \beta$ only if $\norm{\tilde{C} - \tilde{Z}} \leq 1$, where $\tilde{C} = C_{\B} \sqrt{\Delta^{\dagger}}$, and $\tilde{Z} = Z_+{\Sigma}^{-1/2}_+V_+^T$. The least-rank solution to the latter inequality can be found by collecting singular value components of $\tilde{C}$ that are strictly larger than 1, i.e., $\tilde{Z} = \tilde{C}_{\tau}$, where $\tau$ is the number of singular values of $\tilde{C}$ that are larger than 1. Since we transform $\tilde Z$ to obtain $C_{\B, k}$, this allows us to establish a relationship between $\beta$ and the rank-restriction, $k$, to prove the three cases mentioned in theorem \ref{main theorem}. We establish this relationship in lemma \ref{lambda plus}, prove the cases mentioned in the theorem, and then complete the discussion by proving the lemma itself.\\  
+\noindent First, let $ \sigma^{(r)}(K)$ denote the  number of singular values of matrix $K$ that are larger than $r$, and $\lambda_{+}(K)$, the number of positive eigenvalues of $K$.
+So $\sigma^{(1)}(K) = \lambda_{+}(K^T K - I)$ and
+\[ \sigma^{(r)}(K) =  \lambda_{+}( K^T K - r^2 I) \quad \forall r > 0. \]
+
+Now, let $h  = rank(C_{\B} V_0 V_0 ^T)$ be as defined in lemma \ref{achievable}. Then, 
 \begin{lemma}\label{lambda plus}
- $\quad \sigma^{(1)}(\tilde{C}) \leq \sigma^{(\beta)}({C})$.
+\[ \beta > \norm{C_{\N}} \Rightarrow \left\{ \begin{array}{l} \sigma^{(1)}(\tilde{C}) = \sigma^{(\beta)} (C) \\ h = 0 \end{array} \right. , \quad \beta = \norm{C_{\N}} \Rightarrow \left\{ \begin{array}{l} \sigma^{(1)}(\tilde{C}) \leq \sigma^{(\beta)} (C) \\ h \geq 1 \end{array} \right. \]
 \end{lemma}
-\noindent Then, $\rank(\tilde{C}_{\tau}) = \sigma^{(1)}(\tilde{C}) \leq \sigma^{(\beta)}({C}) \leq k^*$ by definition of $\tau$, lemma \ref{lambda plus}, and the definition of $k^*$ in (\ref{critical rank inequality}) respectively.
-%
-%\end{proof}
-%
-%\emph{Proof}:\quad $\rank(\tilde{Y}) = \sigma^{(1)}(\tilde{C}) = \lambda_{+}(\tilde{C}^T \tilde{C} - I) \leq \lambda_{+}({{C}}^T {{C}} - \beta^2I) = \sigma^{(\beta)}({C}) \leq k^*$, because $\sigma_{k^*}(C) > \norm{C_N} \geq \sigma_{k^*+1}(C)$. \\
-%\noindent Thus, we have 
-%\begin{align*}
-%& \tilde{Y}  = (\tilde{C})_{k^*}\\
-%\iff \quad & Z_1{\Sigma}^{-1/2}_+V_+^T  = (\tilde{C})_{k^*}\\
-%\iff \quad & Z_1  = (\tilde{C})_{k^*}V_+{\Sigma}^{1/2}_+ \\
-%\iff \quad & Y  = (\tilde{C})_{k^*}V_+{\Sigma}^{1/2}_+V_+^T + C_BV_0V_0^T\\
-%\iff\quad  & Y  = (C_BV_+{\Sigma}^{-1/2}_+V_+^T)_{k^*}V_+{\Sigma}^{1/2}_+V_+^T + C_BV_0V_0^T
-%\end{align*}
-%
-%The above lemma establishes the relationship between the achievable error $\beta$ and the rank restriction $k$.
-Eckart-Young theorem (see \cite{HJ}) says,  $\norm{C - M} \geq \sigma_{k+1}(C)$, for any matrix $M$ with rank $\leq k$.\\
- Thus, with a given rank $k \geq k^* + h$, we can take $k^*$ number of singular components of $\tilde{C}$ in order to achieve any error $\beta$ such that $ \sigma_{k^*}(C) > \beta \geq \norm{C_N} \geq \sigma_{k^*+1}(C)$.\\
-%
-%Clearly, $\rank({Y}) \leq \rank\Big((\tilde{C})_{k^*}V_+{\Sigma}^{1/2}_+V_+^T\Big) + \rank(C_BV_0V_0^T) \leq k^* + h$. \\
-%If $\rank(C_BV_0V_0^T) < h$, it is possible to achieve the minimum error $\norm{C_N}$ with a $Y$ of rank smaller than $k^* + h$.\\
-\end{proof}
-%\subsubsection{Proof of Lemma \ref{lambda plus}}
-%
-\noindent \textbf{Proof of Lemma \ref{lambda plus}}
-%
-\begin{proof}
-We begin by observing that
-\[ C^T C - \beta^2 I  = C_B ^T C_B + C_N ^T C_N - \beta^2 I = C_B ^T C_B  - \Delta, \]
-and hence
-\[ \sigma^{(\beta)} (C) = \lambda_+ \left( C^T C - \beta^2 I \right) = \lambda_+ \left( C_B ^T C_B  - \Delta \right). \]
-We write the SVD of $\Delta$ as $[V_+, V_0] \Sigma [V_+, V_0]^T$, where the subscripts $+, 0$ stand for the basis of non-zero action (corresponding to positive singular values) and the basis for the null-space (corresponding to singular values that are 0). We now define 
-\[ \Delta_1 = \Delta + V_0 V_0 ^T, \]
-effectively replacing the zeros in $\Sigma$ by ones. Clearly, $\Delta_1 ^{-1} \Delta = \Delta^{\dagger} \Delta = I_r$, where $r$ is the rank of $\Delta$. Since $\Delta_1$ is non-singular by construction, it follows from Sylvester's Law of Inertia that
-\[ \sigma^{(\beta)} (C) = \lambda_+ (C_B ^T C_B  - \Delta) = \lambda_+ \left( \sqrt{\Delta_1 ^{-1}} ^T C_B ^T C_B \sqrt{\Delta_1 ^{-1}} - I_r  \right) . \numberthis \label{beta station} \]
-We now recall a standard result that $\forall G \Geq 0$, $\lambda(C + G) \geq \lambda(C)$. As a result, $\lambda_+ (C+G) \geq \lambda_+ (C)$, and we may proceed to reason as follows. By definition of $\Delta_1$, $\sqrt{\Delta_1^{-1}} = \sqrt{\Delta^{\dagger}} + V_0 V_0 ^T$, whence 
-\[ \sqrt{ \Delta_1 ^{-1} } ^T C_B ^T C_B \sqrt{ \Delta_1 ^{-1}}  = \sqrt{\Delta^{\dagger}}^T C_B ^T C_B \sqrt{\Delta^{\dagger}} + G_1 + G_2 + G_2 ^T, \text{ where } \]
-\[ G_1 = V_0 V_0 ^T C_B ^T C_B V_0 V_0 ^T \Geq 0, \quad  G_2 = \sqrt{\Delta^{\dagger}}^T C_B ^T C_B V_0 V_0 ^T \Geq 0, \quad  G_2 ^T \Geq 0 \] 
-since these are simply products of SPSD matrices. We may also write 
-\[ I_r = I - I_{(r+1 : n)}, \]
-where $I_{(r+1 : n)}$ is zero everywhere except for the diagonal entries from $r+1$ to $n$, which are ones. Clearly, $I_{(r+1: n)} \Geq 0$. Now, 
-\begin{align*}
-\lambda_+ \left( \sqrt{ \Delta_1 ^{-1} } ^T C_B ^T C_B \sqrt{ \Delta_1 ^{-1} } - I_r \right)  &= \lambda_+ \left( \sqrt{\Delta^{\dagger}}^T C_B ^T C_B \sqrt{\Delta^{\dagger}} + G_1 + G_2 + G_2 ^T - I + I_{(r+1 : n)} \right),  \\
-& \geq \lambda_+ \left( \sqrt{\Delta^{\dagger}}^T C_B ^T C_B \sqrt{\Delta^{\dagger}}  - I \right),  \numberthis \label{p2inv}\\ 
-& \quad \text{ since } G_1 + G_2 + G_2 ^T + I_{(r+1 : n)} \Geq 0 \\
-& \geq \lambda_+ \left( \tilde{C} ^T \tilde{C} - I \right) \numberthis \label{p2inv2} \\
-& \quad \text{ since, by definition, } \tilde{C} = C_B \sqrt{\Delta ^{\dagger}} \\
-& = \sigma^{(1)}(\tilde C), 
-\end{align*}
-which, along with (\ref{beta station}) provides the result that we set out to prove.
-\end{proof}
 
 \subsubsection{Proving $\norm{C - C_{B, k}} = \sigma_{k+1}(C)$, for $k < k^*$}
-%
 \begin{proof}
-The proof of this statement follows from a special case of the proof presented for lemma \ref{lambda plus}, where $\norm{C_N} \leq \sigma_{k^*} < \beta$, whence $\Delta = C_N ^T C_N - \beta^2 I$ is invertible and $V_0 = 0$. So $\Delta_1 = \Delta$,  $\Delta^{\dagger} = \Delta^{-1}$, and (\ref{p2inv}), (\ref{p2inv2}) hold with equality. Hence, 
-\[ \sigma^{(1)} (\tilde C) = \sigma^{(\beta)} (C). \]
-Now 
-\[ \rank(Y) = \sigma^{(1)} (\tilde C) + \rank(C_B V_0 V_0 ^T) = \sigma^{(1)} (\tilde C) = \sigma^{(\beta)} (C). \] 
-Clearly, for $\beta = \sigma_{k+1}, \sigma^{(\beta)}(C) = k$ and so we may obtain $Y$ of rank $k$ from within the column space of $B$ with the property that $\norm{C - Y} = \sigma_{k+1}$. The lemma now follows from the Eckart-Young theorem, which states that this is the least error one can achieve with a rank $k$ approximant, providing $C_{B, k} = Y$.
+For $k < k^*$, let $\beta = \sigma_{k+1}(C) \leq \sigma_{k^*} (C) < \norm{C_{\N}}$ be the error we look to achieve with an approximation $Z = B \G$. Clearly, $\sigma^{(\beta)} (C) = k$ and by lemma \ref{lambda plus}, we have
+\[ \sigma^{(1)}(\tilde{C}) = k, \quad h = 0. \]
+By lemma \ref{achievable}, there exists a $Z=(C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ such that $\norm{C - Z} \leq \beta$. Since $h = rank(C_{\B} V_0V_0^T) = 0$, $rank(Z) = k$. However, by Eckart-Zoung theorem, $\forall D$ with $rank(D) \leq k$, $\norm{C - D} \geq \sigma_{k+1} (C)$, implying that
+\[ \norm{C - Z} = \sigma_{k+1}(C).\]
+So $C_{\B, k} := Z$ provides us the promised result.
 \end{proof}
-%
-%\subsection{Proof of Lemma \ref{k less kstar h}}
-%\subsubsection{Proving $\norm{C - C_{B, k}} = (1+\epsilon)\norm{C_N}$, for $k^* \leq k < k^* + h$, $\epsilon > 0$}
-%
-%\begin{proof}
-\noindent To summarize: we've shown above that there is an approximant to $C$, $C_{B, k^* + h}$, of rank $k^* + h$ with columns in the column space of $B$ such that $\norm{C - C_{B, k^* + h}} = \norm{C_N}$; we've also shown that, for all $k < k^*$, we may find an approximant, $C_{B, k}$, with columns in the column space of $B$, that results in the error $\norm{C - C_{B, k}} = \sigma_{k+1}$. To see what happens in the region in between, where the rank, $k$, of the approximant is such that $k^* \leq k < k^* + h$, we reason as follows. For all $\epsilon > 0$, define $\beta(\epsilon) = (1 + \epsilon) \norm{C_N}$. Clearly, $\Delta(\epsilon) = \beta(\epsilon) ^2 I - C_N ^T C_N \succ  0$, invertible, and we may proceed the same way as shown previously to assert that there is an approximant, $C_{B, k^*}$, with the property that $\norm{C - C_{B, k^*}} = \beta(\epsilon), \forall \epsilon > 0$. Since $k^*$ is the smallest rank for which this property holds (for rank $ k < k^*$, we cannot get a lesser error than $\sigma_{k+1} > \norm{C_N}$), and we require the rank of the approximant to be at least $k^* + h$ for when $\epsilon = 0$, it follows that $\forall k^* \leq k < k^* + h$, we can do no better than incur the error $(1 + \epsilon) \norm{C_N}$ for $\epsilon > 0$. This closes the proof of Theorem \ref{main theorem}.
+
+\subsection{Proving $\norm{C - C_{\B, k}} \leq (1 + \epsilon) \norm{C_{\N}}$ for $k^* \leq k \leq k^* + h$}
+\begin{proof}
+This follows by setting $\beta = (1 + \epsilon)\norm{C_{\N}}$ and arguing as in the immediately preceding case, without the use of the observation by Eckart and Zoung.
+\end{proof}
+
+\subsection{Proving $\norm{C- C_{\B, k}} = \norm{C_{\N}}$, for $k \geq k^* + h$}
+\begin{proof}
+Let $\beta = \norm{C_{\N}}$. We have, from lemma \ref{achievable} that $Z = (C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ has the property that $\norm{C - Z} \leq \beta = \norm{C_{\N}}$, and 
+\[ rank(Z) = \sigma^{(1)}(\tilde{C}) + h. \]
+From lemma \ref{lambda plus}: $\sigma^{(1)}(\tilde C) \leq \sigma^{(\beta)}(C) \leq k^*$. So it follows that $\forall k \geq k^* + h,$ $rank(Z) \leq k$. Since $C_{\B}$ is the projection of $C$ onto $\B$, we have that for any $D$ with columns in $\B$,
+\[ \norm{C - D} = \norm{C - C_{\B} + C_{\B} - D} \geq \norm{C - C_{\B}} = \norm{C_{\N}}.\]
+Together with $\norm{C - Z}  \leq \norm{C_{\N}}$, setting $C_{\B, k} := Z$ proves the promised result.
+\end{proof}
+
+\noindent \textbf{Proof of Lemma \ref{lambda plus}}
+\begin{proof}
+We begin by observing that
+\[ C^T C - \beta^2 I  = C_{\B} ^T C_{\B} + C_{\N} ^T C_{\N} - \beta^2 I = C_{\B} ^T C_{\B}  - \Delta, \]
+and hence
+\[ \sigma^{(\beta)} (C) = \lambda_+ \left( C^T C - \beta^2 I \right) = \lambda_+ \left( C_{\B} ^T C_{\B}  - \Delta \right). \]
+We write the SVD of $\Delta$ as $[V_+, V_0] \Sigma [V_+, V_0]^T$, where the subscripts $+, 0$ stand for the basis of non-zero action (corresponding to positive singular values) and the basis for the null-space (corresponding to singular values that are 0). We now define 
+\[ \Delta_1 = \Delta + V_0 V_0 ^T, \]
+effectively replacing the zeros in $\Sigma$ by ones. Clearly, $\Delta_1 ^{-1} \Delta = \Delta^{\dagger} \Delta = V_+ V_+ ^T = I - V_0 V_0 ^T$. Since $\Delta_1$ is non-singular by construction, it follows from Sylvester's Law of Inertia that
+\[ \sigma^{(\beta)} (C) = \lambda_+ (C_{\B} ^T C_{\B}  - \Delta) = \lambda_+ \left( \sqrt{\Delta_1 ^{-1}} ^T C_{\B} ^T C_{\B} \sqrt{\Delta_1 ^{-1}} -  I + V_0 V_0 ^T  \right) . \numberthis \label{beta station} \]
+We now recall a standard result that $\forall G \Geq 0$, $\lambda(C + G) \geq \lambda(C)$. As a result, $\lambda_+ (C+G) \geq \lambda_+ (C)$, and we may proceed to reason as follows. By definition of $\Delta_1$, $\sqrt{\Delta_1^{-1}} = \sqrt{\Delta^{\dagger}} + V_0 V_0 ^T$, whence 
+\[ \sqrt{ \Delta_1 ^{-1} } ^T C_{\B} ^T C_{\B} \sqrt{ \Delta_1 ^{-1}}  = \sqrt{\Delta^{\dagger}}^T C_{\B} ^T C_{\B} \sqrt{\Delta^{\dagger}} + H + G + G ^T, \text{ where } \]
+\[ H = V_0 V_0 ^T C_{\B} ^T C_{\B} V_0 V_0 ^T \Geq 0, \quad  G = \sqrt{\Delta^{\dagger}}^T C_{\B} ^T C_{\B} V_0 V_0 ^T \Geq 0, \quad  G ^T \Geq 0 \] 
+since these are simply products of SPSD matrices. Since $V_0 V_0 ^T \Geq 0$ as well, 
+\begin{align*}
+\lambda_+ \left( \sqrt{ \Delta_1 ^{-1} } ^T C_{\B} ^T C_{\B} \sqrt{ \Delta_1 ^{-1} } - I + V_0 V_0 ^T \right)  & \geq \lambda_+ \left( \sqrt{\Delta^{\dagger}}^T C_{\B} ^T C_{\B} \sqrt{\Delta^{\dagger}}  - I \right),  \numberthis \label{p2inv}\\ 
+& \quad \text{ since } H + G + G ^T + V_0 V_0 ^T \Geq 0 \\
+& \geq \lambda_+ \left( \tilde{C} ^T \tilde{C} - I \right) \numberthis \label{p2inv2} \\
+& \quad \text{ since, by definition, } \tilde{C} = C_{\B} \sqrt{\Delta ^{\dagger}} \\
+& = \sigma^{(1)}(\tilde C).
+\end{align*}
+Along with (\ref{beta station}), we now have
+\[ \sigma^{(\beta)}(C) \geq \sigma^{(1)}(\tilde C). \numberthis \label{bto1} \]
+Finally, we note that, when $\beta > \norm{C_{\N}}$, $\Delta = \beta ^2 I - C_{\N}^T C_{\N}  \> \mathbf{0}$ and invertible. So $V_0 V_0 ^T = \mathbf{0}$ whence $H, G, G^T = \mathbf{0}$, $h = rank(C_{\B} V_0 V_0 ^T) = 0$, and (\ref{p2inv}), (\ref{p2inv2}) and (\ref{bto1}) hold with equality. When $\beta = \norm{C_{\N}}$, $\Delta$ has a null-space, implying that $V_0 V_0 ^T \neq \mathbf{0}$ and that $h \geq 1$. This completes the proof of lemma \ref{lambda plus}.
+\end{proof}
+
+\noindent To summarize: we've shown above that there is an approximation to $C$, $C_{\B, k^* + h}$, of rank at most $k^* + h$ with columns in the column space of $B$ such that $\norm{C - C_{\B, k^* + h}} = \norm{C_{\N}}$; we've also shown that, for all $k < k^*$, we may find an approximation, $C_{\B, k}$, with columns in the column space of $B$, such that $\norm{C - C_{\B, k}} = \sigma_{k+1}$. This closes the proof of Theorem \ref{main theorem}.
+\end{proof}
 
 \section{Discussion}
-We gave an efficient algorithm (Algorithm \ref{alg:outline}) to compute the best rank-$k$ approximation of a matrix $C$ in the column space of given matrix $B$, in spectral norm. The run time of our algorithm is dominated by computing SVD of $C$. It is to be noted that $\rank(B)$ might be much smaller than $\rank(C)$, and therefore, computation for SVD of $B$, denoted by $T_{svd(B)}$, would be much faster. Now, if $B$ contains a good approximation of top $k$ singular vectors of $C$, i.e., $C_{B, k} \approx C_k$, then the following conjecture holds.\\
-\\
-\textbf{Conjecture 1:}\\
-\\
-If $\frac{\norm{{C} - C_{B, k}}}{\norm{C - C_k}} \leq (1+\epsilon)^p$, for $p > 0, 0 < \epsilon < 1$, then
-$\norm{{C} - {(BB^{\dagger}C)}_k} \leq (1+o(\epsilon))\norm{C - C_{B, k}}$. \\
-\\
-Since,  ${(BB^{\dagger}C)}_k$ can be computed in $O(mnr + T_{svd(B)})$ according to section 2.2 in \cite{BDM}, we can obtain a good approximation of $\norm{{C} - C_{B, k}}$ in terms of $\norm{{C} - {(BB^{\dagger}C)}_k}$ in $o(T_{svd(C)})$.\\
-However, we are unable to report any algorithm to solve problem (\ref{main problem}) that runs in $O(T_{svd(B)})$ or even in $o(T_{svd(C)})$. \\
-In this work, we make the assumption that we have an infinite precision machine for arithmetic operations, i.e., we can perform arithmetic operations in $O(1)$ time. In practice, when the minimum achievable error is $\norm{C_N}$, we can get an error arbitrarily close to $\norm{C_N}$. If we want to attain a specific relative error, $\epsilon$,  then the overall running time will be a factor $O\Big(\text{log}(\frac{1}{\epsilon})\Big)$ more.  
+In this work, we have provided an efficient algorithm (Algorithm \ref{alg:outline}) to compute the best rank-$k$ approximation, $C_{\B, k}$, in spectral norm of a matrix, $C$, with columns belonging to the column-space, $\B$, of $B$. The running time of this algorithm is clearly dominated by the computation of the SVD of $C$. In the case where $rank(B) \ll rank(C)$, it would be desirable to obtain $C_{\B, k}$ in running time dominated by $T_{svd(B)}$. While we are currently unable to report such an algorithm, we propose the following intuitive conjecture which may serve as a direction of advancement towards obtaining an algorithm running in $O(T_{svd(B)} + mnr)$ as opposed to $O(T_{svd(C)} + mnr)$: We note that $(C_{\B})_k$ may be computed in $O(mnr + T_{svd(B)})$ (as in section 2.2 of \cite{BDM}). If $\B$ contains a good approximation to the top $k$ left singular vectors of $C$, it seems intuitive to expect $(C_{\B})_k$ to be a good approximation to $C_{\B, k}$. Precisely, we conjecture that\\
+\textbf{Conjecture 1:} For some $p > 0$ and $\epsilon \in (0, 1)$:\\
+\[ \frac{\norm{{C} - C_{\B, k}}}{\norm{C - C_k}} \leq (1+\epsilon)^p \quad \Rightarrow
+\frac{\norm{{C} - (C_{\B})_k} }{\norm{C - C_{\B, k}}}\leq (1+o(\epsilon)). \]
+This provides an exact condition under which we may obtain an algorithm for computing a good approximation to $C_{\B, k}$ in $o(T_{svd(C)})$.\\
+
+Finally: we make the assumption that we have an infinite precision machine for arithmetic operations, i.e., we can perform arithmetic operations in $O(1)$ time. In practice, when the minimum achievable error is $\norm{C_{\N}}$, we can get an error arbitrarily close to $\norm{C_{\N}}$. If we want to attain a specific relative error, $\epsilon$,  then the overall running time will be a factor $O\Big(\text{log}(\frac{1}{\epsilon})\Big)$ more.  
 \bibliographystyle{abbrv}    % bibliography using BibTex format
 \bibliography{reference}
+
+
+\end{document}
 
 \section{Appendix}
 \subsection{Algorithm}
@@ -497,7 +450,7 @@ In this work, we make the assumption that we have an infinite precision machine 
 {\bf Opt\_Spectral\_Matrix\_Approx($A$, $B$, $k$, $\epsilon$) }
 \end{alg}
 \noindent {\bf Input:} $A \in \reals^{m \times n}$, $B \in \reals^{m \times r}$, a $k$ : $1 \leq k \leq n$, accuracy parameter $\epsilon > 0$.\\
-\noindent {\bf Output:} $Y$, such that $Y=BX$, $\rank(Y) \leq k$, and error $\beta = \norm{A - Y}$ achieved according to Theorem \ref{main theorem}.
+\noindent {\bf Output:} $Z$, such that $Z=B X$, $\rank(Z) \leq k$, and error $\beta = \norm{A - Z}$ achieved according to Theorem \ref{main theorem}.
 %\noindent {\bf Steps:}
 %
 \begin{align*}
@@ -507,11 +460,34 @@ In this work, we make the assumption that we have an infinite precision machine 
 3. \quad& \text{Let }\Delta = (\beta^2 I_n - A_N^TA_N); \text{Compute $U_{\Delta}, \Sigma_{\Delta}, V_{\Delta}$, such that, $ \Delta = U_{\Delta}\Sigma_{\Delta} V_{\Delta}^T$ and}, \\
 & V_{\Delta}=[V_+ \quad \tilde{V}_0], \text{where $\tilde{V}_0 = V_0$ if $\beta = \norm{A_N}$, otherwise $\tilde{V}_0 = \emptyset$}; \\
 4. \quad & \text{Let $\Sigma_{\Delta} = [\Sigma_+ \quad \Sigma_0]$ where $\Sigma_+$ corresponding to $V_+$}.\\
-5. \quad& \text{Return } Y = (A_BV_+{\Sigma}^{-1/2}_+V_+^T)_{k-h}V_+{\Sigma}^{1/2}_+V_+^T + A_BV_0V_0^T \text{ and } \beta;
+5. \quad& \text{Return } Z = (A_BV_+{\Sigma}^{-1/2}_+V_+^T)_{k-h}V_+{\Sigma}^{1/2}_+V_+^T + A_BV_0V_0^T \text{ and } \beta;
 \end{align*}
 %
 \end{framed}
 %% ============ The Algorithm ends ==================
 
-\noindent \textbf{Computational complexity}: \quad Computing $A_B$ takes $O(T_{svd(B)}+mnr)$. We need SVD of $A$ to locate $\norm{A_N}$ in the spectrum of $A$. This takes $O(T_{svd(A)}+ log (\rho))$. $\sqrt{\Delta}$ and ${{\Delta}^{\dagger}}^{\frac{1}{2}}$ can be computed using SVD of $\Delta$. We need SVD of $A_BV_+{\Sigma}^{-1/2}_+V_+^T$ to compute $Y$. Multiplication of two $n \times n$ matrices takes time $O(n^\omega), \omega < 3$. Thus, $T_{svd(A)}$ dominates the runtime of the algorithm, making it a $O(T_{svd(A)})$ algorithm. \\
-\end{document}
+\noindent \textbf{Computational complexity}: \quad Computing $A_B$ takes $O(T_{svd(B)}+mnr)$. We need SVD of $A$ to locate $\norm{A_N}$ in the spectrum of $A$. This takes $O(T_{svd(A)}+ log (\rho))$. $\sqrt{\Delta}$ and ${{\Delta}^{\dagger}}^{\frac{1}{2}}$ can be computed using SVD of $\Delta$. We need SVD of $A_BV_+{\Sigma}^{-1/2}_+V_+^T$ to compute $Z$. Multiplication of two $n \times n$ matrices takes time $O(n^\omega), \omega < 3$. Thus, $T_{svd(A)}$ dominates the runtime of the algorithm, making it a $O(T_{svd(A)})$ algorithm. \\
+
+\section{Ending discussion for proof of main theorem}
+To see what happens in the region in between, where the rank, $k$, of the approximant is such that $k^* \leq k < k^* + h$, we reason as follows. For all $\epsilon > 0$, define $\beta(\epsilon) = (1 + \epsilon) \norm{C_N}$. Clearly, $\Delta(\epsilon) = \beta(\epsilon) ^2 I - C_N ^T C_N \succ  0$, invertible, and we may proceed the same way as shown previously to assert that there is an approximant, $C_{B, k^*}$, with the property that $\norm{C - C_{B, k^*}} = \beta(\epsilon), \forall \epsilon > 0$. Since $k^*$ is the smallest rank for which this property holds (for rank $ k < k^*$, we cannot get a lesser error than $\sigma_{k+1} > \norm{C_N}$), and we require the rank of the approximant to be at least $k^* + h$ for when $\epsilon = 0$, it follows that $\forall k^* \leq k < k^* + h$, we can do no better than incur the error $(1 + \epsilon) \norm{C_N}$ for $\epsilon > 0$. 
+
+\section{Right After Lemma 5}
+\begin{lemma}\label{kstar h}
+We can find $Z \in B$, with $rank(Z) = k^* + h$, such that, $\norm{C - Z} = \norm{C_N}$.\\
+Furthermore, 
+\[ Z = \Big((BB^{\dagger}C)V_+{\Sigma}^{-\frac{1}{2}}_+V_+^T\Big)_{k^*}V_+{\Sigma}^{\frac{1}{2}}_+V_+^T + (BB^{\dagger}C)V_0V_0^T\]
+\end{lemma}
+\noindent We can use similar arguments to have the following lemmas.
+\begin{lemma}\label{k less kstar}
+If \text{ }$k < k^*$,
+\[ \norm{C - \Pi_{B, k}(C)} = \sigma_{k+1}(C), \] and
+\[ \Pi_{B, k}(C) = \Big((BB^{\dagger}C)V_+{\Sigma}^{-\frac{1}{2}}_+V_+^T\Big)_{k}V_+{\Sigma}^{\frac{1}{2}}_+V_+^T\]
+\end{lemma}
+\noindent \\
+However, when $k^* \leq k < k^*+h$, we may not achieve the minimum error $\norm{C_N}$. Instead, we can obtain an approximation with error arbitrarily close to $\norm{C_N}$.
+\begin{lemma}\label{k less kstar h}
+Let $\text{ }\beta = (1 + \epsilon)\norm{C_N}, \quad \epsilon > 0$. Then, 
+\[ \Pi_{B, k}(C) = \Big(BB^{\dagger} C {\Delta}^{-\frac{1}{2}}_{\epsilon}\Big)_k {\Delta}^{\frac{1}{2}}_{\epsilon}\]
+ where \quad $\Delta_{\epsilon}  = (1+\epsilon)^2\norm{C_N}^2I_n - C_N^TC_N$.
+\end{lemma}
+\noindent \\

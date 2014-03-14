@@ -1,0 +1,64 @@
+\section{Introduction}
+The best unrestricted rank-$k$ approximation to a matrix $C \in \reals^{m \times n}$ is $C_k$ in both spectral and Frobenius norms, where $C_k$ is the projection of $C$ onto its top-$k$ singular vectors (we use standard matrix notation which we summarize in section 1.1). Therefore, when $B \in \reals^{m \times r}$ spans the top $k$ singular vectors of $C$, $C_k$ is the best rank-$k$ approximation to $C$ having columns in the range of $B$. The approximation error in this case is $\sigma_{k+1}(C)$, the $(k+1)$-th largest singular value of $C$. 
+%When any $l$ singular vectors of $C$ is in $B$, $k \leq l \leq r$, then the best rank-$k$ approximation to $C$ in $B$ is given by the subspace spanned by the largest $k$ singluar vectors of $C$ contained in $B$, i.e., $\prod_{{B}, k}({C}) = C_{\{i\}}$ (see notation), where %$\{i\}$ is the set of indices of $k$ largest singular vectors of $C$ contained in $B$, and the minimum residual error is equal to $\sigma_{j}(C)$, where $j$ is the index of the largest singular vector of $C$ not included in $B$. 
+However, when $B$ spans a more general subspace, $\B$, there is no known algorithm to compute the best rank-$k$ approximation of $C$ with columns in $\B$. A natural approach is to first project $C$ onto $B$, and then take the best rank-$k$ approximation of this projection. This simple approach gives the best rank-$k$ approximation to $C$ within $B$ under the Frobenius norm (lemma 7 in \cite{BDM}), and the running time is $O(T_{svd(B)}+ mnr)$.  However, this simple approach is only 
+known to give a $\sqrt{2}$-approximation to the best subspace constrained rank-$k$ spectral approximation (lemma 7 in \cite{BDM}). 
+Here, we show how to compute this optimal spectral approximation. Specifically, we provide a deterministic algorithm that constructs $X \in \reals^{r \times n}$ which solves
+
+\begin{equation}\label{main problem}
+\min_{\stackrel{X \in  \reals^{r \times n}}{rank({X}) \leq k}} \norm{{C} - {BX}}
+\end{equation}
+Our main result is the following theorem.
+\begin{theorem}\label{thm:main}
+There is a deterministic algorithm (Algorithm \ref{alg:outline})
+ running in time
+\math{O(T_{svd(C)}+mnr)} to construct \math{Y=BX} which solves the optimization
+problem in (\ref{main problem}).
+\end{theorem}
+\subsection{Notation}
+Matrices will be denoted by upper-case letters and we follow Parlett's convention by denoting symmetric matrices by letters symmetric about their vertical axis. If $B \in \reals^{m \times n}$ is an $m \times n$ matrix, $\B, \B'$ will denote its column space (or range) and row space respectively. Scalars will be denoted in lower case. We define other notations in-situ. 
+
+\subsection{Matrix Background}
+\begin{enumerate}
+\item A real matrix $C$ of rank $\rho$ has $\rho$ positive singular values, $\sigma_i, \; 1 \leq i \leq \rho$. For $p > 0$, the Schatten p-norm of $C$, $\norm{C}_{(p)}$, is given by $\left( \sum_i \sigma_i ^p \right)^{1/p}$. For the special case where $p=2$, we have the Frobenius norm of $C$, denoted by $\norm{C}_F$. The spectral/operator norm of $C$, $\norm{C}$, is given by $\displaystyle \max_i \sigma_i$. As a convention, $\norm{ \cdot }$ will denote spectral norm unless specified otherwise. 
+
+\item The Singular Value Decomposition (SVD) of $C$ is
+\begin{align*}
+%\begin{eqnarray*}
+C &= \underbrace{[ \quad U_k \quad U_{\rho - k} \quad ]}_\text{$U_C \in \reals^{m \times \rho}$}
+\underbrace{\begin{bmatrix}
+&\Sigma_k & 0 &\\
+&0 & \Sigma_{\rho - k}&
+\end{bmatrix}}_\text{$\Sigma_C \in \reals^{\rho \times \rho}$}
+\underbrace{\begin{bmatrix}
+&V_k^{\text{T}}&\\
+&V_{\rho - k}^{\text{T}}&
+\end{bmatrix}}_\text{$V_C^{\text{T}} \in \reals^{\rho \times n}$} = U_C\Sigma_C V_C\\
+C & = C_k + C_{\rho - k}, \quad \text{ where } \quad C_k  = U_k\Sigma_kV_k^{\text{T}}, \quad  C_{\rho - k}  = U_{\rho - k}\Sigma_{\rho - k}V_{\rho -k}^{\text{T}}
+%\end{eqnarray*}
+\end{align*} 
+The matrices $U_C = [U_k, U_{\rho - k}]$ and $V_C = [V_k, V_{\rho - k}]$ contain as orthonormal columns the left and right singular vectors of $C$ respectively. The diagonal matrix, $\Sigma$, contains the singular values, $\sigma_i > 0, 1 \leq i \leq \rho$, of $C$ in non-increasing order: $\sigma_{i} \geq \sigma_{j}\; \forall i \leq j$. In this manner, the top $k$ singular values are contained in $\Sigma_k$ and the rest contained in $\Sigma_{\rho - k}$. 
+
+\item The best rank-$k$ approximation of $C$ is $C_k = U_k\Sigma_kV_k^{\text{T}}$ that minimizes $\norm{C - Z}_{\alpha}$ over all matrices $X \in \reals^{m \times n}$ having rank at most $k$, in both spectral and Schatten norms - and as a result, in the Frobenius norm. 
+
+\item The Moore-Penrose pseudo-inverse of $C$ is denoted by $C^{\dagger} = V_C\Sigma_C^{-1}U_C^{\text{T}}$. For a symmetric matrix, $A$, we mean, by $\sqrt{A}$, the unique symmetric square root of $A$ given by $U_A \sqrt{\Sigma} U_A ^T$. 
+
+\item Given $B \in \reals^{m \times r}$, we denote by $C_{\B}$, the orthogonal projection of $C$ onto $\B$: $C_{\B} = BB^{\dagger}C$; and by $C_{\N}$, the residual of $C$ with respect to this projection: $C_{\N} = C - C_{\B}$. So $C_{\N}$ is orthogonal to $B$. 
+We define the matrix $C_{\B,k} \in \reals^{m \times n}$ to be the best rank-$k$ approximation of ${C}$ with columns in $\B$. 
+%$\norm{C - \Pi_{{B}, k}({C})} = \min_{\stackrel{X \in \reals^{r \times n}}{rank(X) = k}} \norm{C - BX}$
+\[\norm{C - C_{\B,k}} = \min_{\stackrel{Z \in \reals^{r \times n}}{rank(Z) = k}} \norm{C - BZ}\]
+In general, $C_{\B,k} \neq (C_{\B})_k$. 
+
+\item The semidefinite partial ordering, $\Leq$, is defined by $X \Leq Y$ ($Y$ dominates $X$), if and only if $Y - X$ is positive semidefinite. That every restriction of $Y$ must dominate the corresponding restriction of $X$ is a useful observation, formally contained in the following lemma.
+\begin{lemma}\label{basic lemma}
+Let $X = F^TF$ and  $Y$ be SPSD matrices. Let SVD of $Y = V_Y\Sigma_Y V_Y^T,$ $V_Y = [V_+, V_0]$ where $V_0$ is a basis for the null space of 
+$Y$ - so \math{YV_0=0}. Then, 
+\[X \Leq Y \quad \text{  if and only if } \quad
+\begin{cases}
+\quad XV_0 = 0, \\[3pt]
+\norm{F \sqrt{Y^{\dagger}} } \leq 1.
+\end{cases}.
+\]
+\end{lemma}
+\noindent This lemma is a generalization of a transformation shown in \cite{SR}.
+\end{enumerate}
