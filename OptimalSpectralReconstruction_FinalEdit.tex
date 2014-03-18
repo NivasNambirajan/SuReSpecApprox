@@ -284,10 +284,10 @@ An algorithm that solves problem (\ref{main problem}) results naturally from our
 1. \quad& [C_{\B}, C_{\N}] = \textbf{Orthosplit}(C, B) & O(mnr + T_{svd(B)})\\
 2. \quad& [U_N, \Sigma _N, V_N] = \textbf{reducedSVD}(C_{\N}) & O(T_{svd(C)}) \\ 
 & \text{where } \nu_i := \Sigma _N (i, i), V_0 \text{ is made of the columns of  } V_N \text{ corresponding to } \nu_1 \\
-2. \quad& h = \textbf{rank}(C_{\B} V_0 V_0 ^T)  & O\left(T_{svd(B)} \right)\\
-3. \quad& [\beta,\bar h] = \textbf{SetError}(C, C_{\N}, k, h, \epsilon) & O\left( T_{svd(C)} \right) \\
-4. \quad& \Delta = \beta^2 I - C_{\N} ^T C_{\N} & \\
-5. \quad& Z = \textbf{ExtractApproximation}(C_{\B}, \Delta, k, \bar h) & O\left( T_{svd(C)} \right) \\
+3. \quad& h = \textbf{rank}(C_{\B} V_0 V_0 ^T)  & O\left(T_{svd(B)} \right)\\
+4. \quad& [\beta,\bar h] = \textbf{SetError}(C, C_{\N}, k, h, \epsilon) & O\left( T_{svd(C)} \right) \\
+5. \quad& \Delta = \beta^2 I - C_{\N} ^T C_{\N} & \\
+6. \quad& Z = \textbf{ExtractApproximation}(C_{\B}, \Delta, k, \bar h) & O\left( T_{svd(C)} \right) \\
 \end{align*}
 %
 \end{framed}
