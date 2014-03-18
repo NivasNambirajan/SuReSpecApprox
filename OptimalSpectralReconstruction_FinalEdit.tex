@@ -101,7 +101,7 @@ The best unrestricted rank-$k$ approximation to a matrix $C \in \reals^{m \times
 %When any $l$ singular vectors of $C$ is in $B$, $k \leq l \leq r$, then the best rank-$k$ approximation to $C$ in $B$ is given by the subspace spanned by the largest $k$ singluar vectors of $C$ contained in $B$, i.e., $\prod_{{B}, k}({C}) = C_{\{i\}}$ (see notation), where %$\{i\}$ is the set of indices of $k$ largest singular vectors of $C$ contained in $B$, and the minimum residual error is equal to $\sigma_{j}(C)$, where $j$ is the index of the largest singular vector of $C$ not included in $B$. 
 However, when $B$ spans a more general subspace, $\B$, there is no known algorithm to compute the best rank-$k$ approximation of $C$ with columns in $\B$. A natural approach is to first project $C$ onto $B$, and then take the best rank-$k$ approximation of this projection. This simple approach gives the best rank-$k$ approximation to $C$ within $B$ under the Frobenius norm (lemma 7 in \cite{BDM}), and the running time is $O(T_{svd(B)}+ mnr)$.  However, this simple approach is only 
 known to give a $\sqrt{2}$-approximation to the best subspace constrained rank-$k$ spectral approximation (lemma 7 in \cite{BDM}). 
-Here, we show how to compute this optimal spectral approximation. Specifically, we provide a deterministic algorithm that constructs $\G \in \reals^{r \times n}$ which solves
+Here, we show how to compute this optimal spectral approximation. Specifically, we provide a deterministic algorithm that constructs $Z = B \G$ with the property that $Z \in \reals^{m \times n}, \G \in \reals^{r \times n}$, which solves
 
 \begin{equation}\label{main problem}
 \min_{\stackrel{\G \in  \reals^{r \times n}}{rank({\G}) \leq k}} \norm{{C} - {B\G}}
@@ -270,7 +270,7 @@ is a solution satisfying \math{\norm{C-Z}\le\beta},
 \end{lemma}
 
 \subsubsection{The Algorithm}
-An algorithm that solves problem (\ref{main problem}) results naturally from our analysis above. This algorithm is presented as \textbf{Su}bspace \textbf{Re}stricted \textbf{S}pectral \textbf{A}pproximation below. It is split into modules both for the purposes of exposition and to serve as units of improvement in runtime of the overall algorithm. We also provide the leading running times - running times of operations that are $\Omega(T_{svd(B)})$ - next to the corresponding operations.
+An algorithm that solves problem (\ref{main problem}) results naturally from our analysis above. This algorithm is presented as \textbf{Su}bspace \textbf{Re}stricted \textbf{Spectral} \textbf{Approx}imation below. It is split into modules both for the purposes of exposition and to serve as units of improvement in runtime of the overall algorithm. We also provide the leading running times - running times of operations that are $\Omega(T_{svd(B)})$ - next to the corresponding operations.
 %% ============ The Algorithm begins ==================
 \begin{framed}
 \begin{alg}\label{alg:outline}
@@ -282,6 +282,8 @@ An algorithm that solves problem (\ref{main problem}) results naturally from our
 %
 \begin{align*}
 1. \quad& [C_{\B}, C_{\N}] = \textbf{Orthosplit}(C, B) & O(mnr + T_{svd(B)})\\
+2. \quad& [U_N, \Sigma _N, V_N] = \textbf{reducedSVD}(C_{\N}) & O(T_{svd(C)}) \\ 
+& \text{where } \nu_i := \Sigma _N (i, i), V_0 \text{ is made of the columns of  } V_N \text{ corresponding to } \nu_1 \\
 2. \quad& h = \textbf{rank}(C_{\B} V_0 V_0 ^T)  & O\left(T_{svd(B)} \right)\\
 3. \quad& [\beta,\bar h] = \textbf{SetError}(C, C_{\N}, k, h, \epsilon) & O\left( T_{svd(C)} \right) \\
 4. \quad& \Delta = \beta^2 I - C_{\N} ^T C_{\N} & \\
@@ -291,7 +293,9 @@ An algorithm that solves problem (\ref{main problem}) results naturally from our
 \end{framed}
 %% ============ The Algorithm ends ==================
 
-\noindent We note that the approximation error may be obtained prior to obtaining the approximation itself. The integer, $h$, is the rank-baggage for obtaining an approximation, $C_{\B, k}$, that is as good as the best possible approximation, $C_{\B}$, to $C$, with columns in $\B$. The integer $\bar{h}$ is the rank-baggage for any approximation, equaling $h$ when $\beta = \norm{C_{\N}}$ and 0 in every other case. The running time of this algorithm is $O\left( mnr + T_{svd(C)} \right)$.
+\noindent Here, $\textbf{Orthosplit}(C, B)$ obtains the orthogonal components of $C$ with respect to $\B$: 
+\[ C_{\B} = BB^{\dagger} C, \; C_{\N} = C - C_{\B}. \] 
+We note that the approximation error may be obtained prior to obtaining the approximation itself. The integer, $h$, is the rank-baggage for obtaining an approximation, $C_{\B, k}$, that is as good as the best possible approximation, $C_{\B}$, to $C$, with columns in $\B$. The integer $\bar{h}$ is the rank-baggage for any approximation, equaling $h$ when $\beta = \norm{C_{\N}}$ and 0 in every other case. The running time of this algorithm is $O\left( mnr + T_{svd(C)} \right)$.
 
 \begin{framed}
 \begin{alg}\label{alg:seterr}
@@ -302,7 +306,7 @@ An algorithm that solves problem (\ref{main problem}) results naturally from our
 %\noindent {\bf Steps:}
 %
 \begin{align*}
-1. \quad& [U_C, \Sigma_C, V_C] = \textbf{Reducedsvd}(C), \text{ where } \sigma_i := \Sigma_C (i, i)  & O\left( T_{svd(C)} \right) \\
+1. \quad& [U_C, \Sigma_C, V_C] = \textbf{reducedSVD}(C), \text{ where } \sigma_i := \Sigma_C (i, i)  & O\left( T_{svd(C)} \right) \\
 2. \quad& \text{Compute} \norm{C_{\N}}\\
 3. \quad& \text{Compute } k^* = \arg \max_i \sigma_i > \norm{C_{\N}} \\
 4. \quad& \textbf{if } k < k^* \textbf{ return } [\sigma_{k+1}, 0] \\
@@ -323,7 +327,7 @@ An algorithm that solves problem (\ref{main problem}) results naturally from our
 %\noindent {\bf Steps:}
 %
 \begin{align*}
-1. \quad& [V_{\Delta} \Sigma_{\Delta} V_{\Delta}] = \textbf{Reducedsvd} (\Delta),\text{ where } V_{\Delta} = [V_+, V_0],\; \Sigma_{\Delta} = \begin{pmatrix} \Sigma_+ & 0 \\ 0 & \Sigma_0 \end{pmatrix} & O\left(T_{svd(C)} \right)\\
+1. \quad& [V_+, \Sigma_+, V_+] = \textbf{reducedSVD} (\Delta),\text{ where } \Sigma_+ \text{ has a positive diagonal } & O\left(T_{svd(C)} \right)\\
 2. \quad& R = \textbf{rankTruncate}\left( C_{\B} \; V_+ \sqrt{\Sigma_+}^{-1} V_+ ^T, k - \bar h \right)  & O\left( T_{svd(B)} \right)\\
 3. \quad& Z = R \; V_+ \sqrt{\Sigma_+} V_+ ^T  + C_{\B} V_0 V_0 ^T.
 \end{align*}
@@ -431,7 +435,7 @@ Finally, we note that, when $\beta > \norm{C_{\N}}$, $\Delta = \beta ^2 I - C_{\
 \section{Discussion}
 In this work, we have provided an efficient algorithm (Algorithm \ref{alg:outline}) to compute the best rank-$k$ approximation, $C_{\B, k}$, in spectral norm of a matrix, $C$, with columns belonging to the column-space, $\B$, of $B$. The running time of this algorithm is clearly dominated by the computation of the SVD of $C$. In the case where $rank(B) \ll rank(C)$, it would be desirable to obtain $C_{\B, k}$ in running time dominated by $T_{svd(B)}$. While we are currently unable to report such an algorithm, we propose the following intuitive conjecture which may serve as a direction of advancement towards obtaining an algorithm running in $O(T_{svd(B)} + mnr)$ as opposed to $O(T_{svd(C)} + mnr)$: We note that $(C_{\B})_k$ may be computed in $O(mnr + T_{svd(B)})$ (as in section 2.2 of \cite{BDM}). If $\B$ contains a good approximation to the top $k$ left singular vectors of $C$, it seems intuitive to expect $(C_{\B})_k$ to be a good approximation to $C_{\B, k}$. Precisely, we conjecture that\\
 \textbf{Conjecture 1:} For some $p > 0$ and $\epsilon \in (0, 1)$:\\
-\[ \frac{\norm{{C} - C_{\B, k}}}{\norm{C - C_k}} \leq (1+\epsilon)^p \quad \Rightarrow
+\[ \frac{\norm{{C} - C_{\B, k}}}{\norm{C - C_k}} \leq (1+\epsilon)^p \quad \Rightarrow \quad
 \frac{\norm{{C} - (C_{\B})_k} }{\norm{C - C_{\B, k}}}\leq (1+o(\epsilon)). \]
 This provides an exact condition under which we may obtain an algorithm for computing a good approximation to $C_{\B, k}$ in $o(T_{svd(C)})$.\\
 
