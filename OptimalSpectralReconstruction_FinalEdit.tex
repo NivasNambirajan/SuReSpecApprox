@@ -328,13 +328,14 @@ We note that the approximation error may be obtained prior to obtaining the appr
 %
 \begin{align*}
 1. \quad& [V_+, \Sigma_+, V_+] = \textbf{reducedSVD} (\Delta),\text{ where } \Sigma_+ \text{ has a positive diagonal } & O\left(T_{svd(C)} \right)\\
-2. \quad& R = \textbf{rankTruncate}\left( C_{\B} \; V_+ \sqrt{\Sigma_+}^{-1} V_+ ^T, k - \bar h \right)  & O\left( T_{svd(B)} \right)\\
+2. \quad& R = \textbf{SVtruncate}\left( C_{\B} \; V_+ \sqrt{\Sigma_+}^{-1} V_+ ^T, 1 \right)  & O\left( T_{svd(B)} \right)\\
 3. \quad& Z = R \; V_+ \sqrt{\Sigma_+} V_+ ^T  + C_{\B} V_0 V_0 ^T.
 \end{align*}
 %
 \end{framed}
 %===End Construction===%
-\noindent Here, $\textbf{rankTruncate}(G, a)$ is the top $a$ SVD truncation of $G$. We note that, for $k < k^* + h$, the rank-$h$ additive correction, $C_{\B} V_0 V_0 ^T$ is $\mathbf{0}$. This additive correction only features non-trivially when obtaining an approximation to $C$ that is as good as the projection, $C_{\B}$, but possibly of lower rank than $C_{\B}$. This, for instance, happens when $C$ is full rank and $k + h < r = rank(B) = rank(C_{\B})$. 
+\noindent Here, $\textbf{SVruncate}(G, \alpha)$ is the top $\tau$ SVD truncation of $G$ where $\sigma_{\tau} (G) \geq \alpha$ and $\sigma_{\tau + 1} (G) < \alpha$.
+We note that, for $k < k^* + h$, the rank-$h$ additive correction, $C_{\B} V_0 V_0 ^T$ is $\mathbf{0}$. This additive correction only features non-trivially when obtaining an approximation to $C$ that is as good as the projection, $C_{\B}$, but possibly of lower rank than $C_{\B}$. This, for instance, happens when $C$ is full rank and $k + h < r = rank(B) = rank(C_{\B})$. 
 \section{Proofs}
 \subsection{Lemma \ref{basic lemma}}
 The proof of lemma \ref{basic lemma} is intuitive; we state the intuition first, followed by a formal proof. We first note that $X \Leq Y$ implies that the action of $Y$ is at least as large as the action of $X$ everywhere in $\RR^n$. Clearly, this implies that, $X$ cannot have a non-zero action in the space where $Y$ has zero action, leading to $X V_0 = \0$. This also implies that, in the space where $Y$ has non-zero action in general, its pseudo inverse must reduce a vector more than $X$ magnifies it, which is essentially the intuition contained in $\norm{F \sqrt{Y^{\dagger}} } \leq 1$. 
@@ -375,7 +376,7 @@ We recall from Section 2 that $\beta \geq \norm{C_{\N}}$ is the achievable error
 So $\sigma^{(1)}(K) = \lambda_{+}(K^T K - I)$ and
 \[ \sigma^{(r)}(K) =  \lambda_{+}( K^T K - r^2 I) \quad \forall r > 0. \]
 
-Now, let $h  = rank(C_{\B} V_0 V_0 ^T)$ be as defined in lemma \ref{achievable}. Then, 
+\noindent Now let $h  = rank(C_{\B} V_0 V_0 ^T)$ be as defined in lemma \ref{achievable}. Then, 
 \begin{lemma}\label{lambda plus}
 \[ \beta > \norm{C_{\N}} \Rightarrow \left\{ \begin{array}{l} \sigma^{(1)}(\tilde{C}) = \sigma^{(\beta)} (C) \\ h = 0 \end{array} \right. , \quad \beta = \norm{C_{\N}} \Rightarrow \left\{ \begin{array}{l} \sigma^{(1)}(\tilde{C}) \leq \sigma^{(\beta)} (C) \\ h \geq 1 \end{array} \right. \]
 \end{lemma}
@@ -384,26 +385,26 @@ Now, let $h  = rank(C_{\B} V_0 V_0 ^T)$ be as defined in lemma \ref{achievable}.
 \begin{proof}
 For $k < k^*$, let $\beta = \sigma_{k+1}(C) \leq \sigma_{k^*} (C) < \norm{C_{\N}}$ be the error we look to achieve with an approximation $Z = B \G$. Clearly, $\sigma^{(\beta)} (C) = k$ and by lemma \ref{lambda plus}, we have
 \[ \sigma^{(1)}(\tilde{C}) = k, \quad h = 0. \]
-By lemma \ref{achievable}, there exists a $Z=(C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ such that $\norm{C - Z} \leq \beta$. Since $h = rank(C_{\B} V_0V_0^T) = 0$, $rank(Z) = k$. However, by Eckart-Zoung theorem, $\forall D$ with $rank(D) \leq k$, $\norm{C - D} \geq \sigma_{k+1} (C)$, implying that
+By lemma \ref{achievable}, there exists a $Z=(C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ such that $\norm{C - Z} \leq \beta$. Since $h = rank(C_{\B} V_0V_0^T) = 0$, $rank(Z) = k$. However, by Eckart-Young theorem, $\forall D$ with $rank(D) \leq k$, $\norm{C - D} \geq \sigma_{k+1} (C)$, implying that
 \[ \norm{C - Z} = \sigma_{k+1}(C).\]
 So $C_{\B, k} := Z$ provides us the promised result.
 \end{proof}
 
-\subsection{Proving $\norm{C - C_{\B, k}} \leq (1 + \epsilon) \norm{C_{\N}}$ for $k^* \leq k \leq k^* + h$}
+\subsubsection{Proving $\norm{C - C_{\B, k}} \leq (1 + \epsilon) \norm{C_{\N}}$ for $k^* \leq k \leq k^* + h$}
 \begin{proof}
-This follows by setting $\beta = (1 + \epsilon)\norm{C_{\N}}$ and arguing as in the immediately preceding case, without the use of the observation by Eckart and Zoung.
+This follows by setting $\beta = (1 + \epsilon)\norm{C_{\N}}$ and arguing as in the immediately preceding case, without the use of the observation by Eckart and Young.
 \end{proof}
 
-\subsection{Proving $\norm{C- C_{\B, k}} = \norm{C_{\N}}$, for $k \geq k^* + h$}
+\subsubsection{Proving $\norm{C- C_{\B, k}} = \norm{C_{\N}}$, for $k \geq k^* + h$}
 \begin{proof}
 Let $\beta = \norm{C_{\N}}$. We have, from lemma \ref{achievable} that $Z = (C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ has the property that $\norm{C - Z} \leq \beta = \norm{C_{\N}}$, and 
 \[ rank(Z) = \sigma^{(1)}(\tilde{C}) + h. \]
 From lemma \ref{lambda plus}: $\sigma^{(1)}(\tilde C) \leq \sigma^{(\beta)}(C) \leq k^*$. So it follows that $\forall k \geq k^* + h,$ $rank(Z) \leq k$. Since $C_{\B}$ is the projection of $C$ onto $\B$, we have that for any $D$ with columns in $\B$,
-\[ \norm{C - D} = \norm{C - C_{\B} + C_{\B} - D} \geq \norm{C - C_{\B}} = \norm{C_{\N}}.\]
+\[ \norm{C - D}  \geq \norm{C - C_{\B}} = \norm{C_{\N}}.\]
 Together with $\norm{C - Z}  \leq \norm{C_{\N}}$, setting $C_{\B, k} := Z$ proves the promised result.
 \end{proof}
 
-\noindent \textbf{Proof of Lemma \ref{lambda plus}}
+\subsubsection{Proof of Lemma \ref{lambda plus}}
 \begin{proof}
 We begin by observing that
 \[ C^T C - \beta^2 I  = C_{\B} ^T C_{\B} + C_{\N} ^T C_{\N} - \beta^2 I = C_{\B} ^T C_{\B}  - \Delta, \]
@@ -426,7 +427,7 @@ since these are simply products of SPSD matrices. Since $V_0 V_0 ^T \Geq 0$ as w
 \end{align*}
 Along with (\ref{beta station}), we now have
 \[ \sigma^{(\beta)}(C) \geq \sigma^{(1)}(\tilde C). \numberthis \label{bto1} \]
-Finally, we note that, when $\beta > \norm{C_{\N}}$, $\Delta = \beta ^2 I - C_{\N}^T C_{\N}  \> \mathbf{0}$ and invertible. So $V_0 V_0 ^T = \mathbf{0}$ whence $H, G, G^T = \mathbf{0}$, $h = rank(C_{\B} V_0 V_0 ^T) = 0$, and (\ref{p2inv}), (\ref{p2inv2}) and (\ref{bto1}) hold with equality. When $\beta = \norm{C_{\N}}$, $\Delta$ has a null-space, implying that $V_0 V_0 ^T \neq \mathbf{0}$ and that $h \geq 1$. This completes the proof of lemma \ref{lambda plus}.
+Finally, we note that, when $\beta > \norm{C_{\N}}$, $\Delta = \beta ^2 I - C_{\N}^T C_{\N}  \> \mathbf{0}$ and invertible. So $V_0 V_0 ^T = \mathbf{0}$ whence $H, G, G^T = \mathbf{0}$, $h = rank(C_{\B} V_0 V_0 ^T) = 0$, and (\ref{p2inv}), (\ref{p2inv2}) and (\ref{bto1}) hold with equality. When $\beta = \norm{C_{\N}}$, $\Delta$ has a non-trivial null-space, implying that $V_0 V_0 ^T \neq \mathbf{0}$ and that $h \geq 1$. This completes the proof of lemma \ref{lambda plus}.
 \end{proof}
 
 \noindent To summarize: we've shown above that there is an approximation to $C$, $C_{\B, k^* + h}$, of rank at most $k^* + h$ with columns in the column space of $B$ such that $\norm{C - C_{\B, k^* + h}} = \norm{C_{\N}}$; we've also shown that, for all $k < k^*$, we may find an approximation, $C_{\B, k}$, with columns in the column space of $B$, such that $\norm{C - C_{\B, k}} = \sigma_{k+1}$. This closes the proof of Theorem \ref{main theorem}.
