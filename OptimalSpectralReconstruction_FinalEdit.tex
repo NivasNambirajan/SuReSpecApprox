@@ -98,9 +98,7 @@ We consider the classic problem of low-rank spectral approximation of $C$ with c
 
 \section{Introduction}
 The best unrestricted rank-$k$ approximation to a matrix $C \in \reals^{m \times n}$ is $C_k$ in both spectral and Frobenius norms, where $C_k$ is the projection of $C$ onto its top-$k$ singular vectors (we use standard matrix notation which we summarize in section 1.1). Therefore, when $B \in \reals^{m \times r}$ spans the top $k$ singular vectors of $C$, $C_k$ is the best rank-$k$ approximation to $C$ having columns in the range of $B$. The approximation error in this case is $\sigma_{k+1}(C)$, the $(k+1)$-th largest singular value of $C$. 
-%When any $l$ singular vectors of $C$ is in $B$, $k \leq l \leq r$, then the best rank-$k$ approximation to $C$ in $B$ is given by the subspace spanned by the largest $k$ singluar vectors of $C$ contained in $B$, i.e., $\prod_{{B}, k}({C}) = C_{\{i\}}$ (see notation), where %$\{i\}$ is the set of indices of $k$ largest singular vectors of $C$ contained in $B$, and the minimum residual error is equal to $\sigma_{j}(C)$, where $j$ is the index of the largest singular vector of $C$ not included in $B$. 
-However, when $B$ spans a more general subspace, $\B$, there is no known algorithm to compute the best rank-$k$ approximation of $C$ with columns in $\B$. A natural approach is to first project $C$ onto $B$, and then take the best rank-$k$ approximation of this projection. This simple approach gives the best rank-$k$ approximation to $C$ within $B$ under the Frobenius norm (lemma 7 in \cite{BDM}), and the running time is $O(T_{svd(B)}+ mnr)$.  However, this simple approach is only 
-known to give a $\sqrt{2}$-approximation to the best subspace constrained rank-$k$ spectral approximation (lemma 7 in \cite{BDM}). 
+However, when $B$ spans a more general subspace, $\B$, there is no known algorithm to compute the best rank-$k$ approximation of $C$ with columns in $\B$. A natural approach is to first project $C$ onto $\B$, and then take the best rank-$k$ approximation of this projection. This simple approach gives the best rank-$k$ approximation to $C$ with columns in $\B$ under the Frobenius norm (lemma 7 in \cite{BDM}), and the running time is $O(T_{svd(B)}+ mnr)$; but this is only known to give a $\sqrt{2}$-approximation to the best subspace constrained rank-$k$ approximation in spectral norm (lemma 7 in \cite{BDM}). 
 Here, we show how to compute this optimal spectral approximation. Specifically, we provide a deterministic algorithm that constructs $Z = B \G$ with the property that $Z \in \reals^{m \times n}, \G \in \reals^{r \times n}$, which solves
 
 \begin{equation}\label{main problem}
@@ -116,7 +114,7 @@ problem in (\ref{main problem}).
 \subsection{Notation}
 Matrices will be denoted by upper-case letters and we follow Parlett's convention by denoting symmetric matrices by letters symmetric about their vertical axis, excepting two common practices: matrices with orthonormal rows/columns will be denoted by $U, V$, and the spectrum-diagonal of a matrix will be denoted by $\Sigma$. If $B \in \reals^{m \times n}$ is an $m \times n$ matrix, $\B, \B'$ will denote its column space (or range) and row space respectively. Scalars will be denoted in lower case. We define other notations in-situ. 
 
-\subsection{Matrix Background}
+\subsection{Matrix Background} \label{matBack}
 \begin{enumerate}
 \item A real matrix $C$ of rank $\rho$ has $\rho$ positive singular values, $\sigma_i, \; 1 \leq i \leq \rho$. For $p > 0$, the Schatten p-norm of $C$, $\norm{C}_{(p)}$, is given by $\left( \sum_i \sigma_i ^p \right)^{1/p}$. For the special case where $p=2$, we have the Frobenius norm of $C$, denoted by $\norm{C}_F$. The spectral/operator norm of $C$, $\norm{C}$, is given by $\displaystyle \max_i \sigma_i$. As a convention, $\norm{ \cdot }$ will denote spectral norm unless specified otherwise. 
 
@@ -161,16 +159,17 @@ $Y$ - so \math{YV_0=0}. Then,
 \end{enumerate}
 
 \section{Main Result}
-Let $C \in \reals^{m \times n}, \; m \geq n$ and let $B \in \reals^{m \times r}$ be a basis for $\B$, an $r$-dimensional subspace of $\reals^m$. Any matrix of rank $k \leq r$ with columns in $\B$ may be written is $Z = B \G$, with $rank(\G) = k$. We define the critical rank, $k^*$, as the number of singular values of $C$ strictly larger than the orthogonal complement of $C$ with respect to $\B$ in (spectral) norm:
-\begin{eqnarray}\label{critical rank inequality}
-\sigma_{k^*}(C) > \norm{C_{\N}} \geq \sigma_{k^*+1}(C).
-\end{eqnarray}
+Let $C \in \reals^{m \times n}, \; m \geq n$ and let $B \in \reals^{m \times r}$ be a basis for $\B$, an $r$-dimensional subspace of $\reals^m$. Any matrix of rank $k \leq r$ with columns in $\B$ may be written is $Z = B \G$, with $rank(\G) = k$. 
 Our main observation is that the best rank-$k$ approximation, $C_{\B, k}$, with columns in $\B$, to $C$ is for the most part either
 \begin{itemize}
 \item as good as the best rank-$k$ approximant, $C_k$, without any subspace-restrictions on its columns, or
 \item as good as the best subspace restricted approximant, $C_{\B}$, without any rank restrictions.
 \end{itemize}
-Formally:
+Formally: let us define the critical rank, $k^*$, as the number of singular values of $C$ strictly larger than the orthogonal complement of $C$ with respect to $\B$ in spectral norm:
+\begin{eqnarray}\label{critical rank inequality}
+\sigma_{k^*}(C) > \norm{C_{\N}} \geq \sigma_{k^*+1}(C).
+\end{eqnarray}
+Then
 \begin{theorem}\label{main theorem}
 Given $1 \leq k < r,$
 \[ \norm{C - C_{\B,k}}  \left\{ \begin{array}{ll} = \norm{C - C_k} = \sigma_{k+1}(C), & \quad k < k^*,\\
@@ -293,8 +292,7 @@ An algorithm that solves problem (\ref{main problem}) results naturally from our
 \end{framed}
 %% ============ The Algorithm ends ==================
 
-\noindent Here, $\textbf{Orthosplit}(C, B)$ obtains the orthogonal components of $C$ with respect to $\B$: 
-\[ C_{\B} = BB^{\dagger} C, \; C_{\N} = C - C_{\B}. \] 
+\noindent Here, $\textbf{Orthosplit}(C, B)$ obtains the orthogonal components of $C$ with respect to $\B$ as in section \ref{matBack}, 5.
 We note that the approximation error may be obtained prior to obtaining the approximation itself. The integer, $h$, is the rank-baggage for obtaining an approximation, $C_{\B, k}$, that is as good as the best possible approximation, $C_{\B}$, to $C$, with columns in $\B$. The integer $\bar{h}$ is the rank-baggage for any approximation, equaling $h$ when $\beta = \norm{C_{\N}}$ and 0 in every other case. The running time of this algorithm is $O\left( mnr + T_{svd(C)} \right)$.
 
 \begin{framed}
@@ -372,9 +370,9 @@ negating $\norm{F \sqrt{Y^{\dagger}}} \leq 1$, proving the backward implication 
 \subsection{Proof of Theorem \ref{main theorem}}
 \begin{proof}
 We recall from Section 2 that $\beta \geq \norm{C_{\N}}$ is the achievable error, and that $\norm{{C} - {Z}} \leq \beta$ only if $\norm{\tilde{C} - \tilde{Z}} \leq 1$, where $\tilde{C} = C_{\B} \sqrt{\Delta^{\dagger}}$, and $\tilde{Z} = Z_+{\Sigma}^{-1/2}_+V_+^T$. The least-rank solution to the latter inequality can be found by collecting singular value components of $\tilde{C}$ that are strictly larger than 1, i.e., $\tilde{Z} = \tilde{C}_{\tau}$, where $\tau$ is the number of singular values of $\tilde{C}$ that are larger than 1. Since we transform $\tilde Z$ to obtain $C_{\B, k}$, this allows us to establish a relationship between $\beta$ and the rank-restriction, $k$, to prove the three cases mentioned in theorem \ref{main theorem}. We establish this relationship in lemma \ref{lambda plus}, prove the cases mentioned in the theorem, and then complete the discussion by proving the lemma itself.\\  
-\noindent First, let $ \sigma^{(r)}(K)$ denote the  number of singular values of matrix $K$ that are larger than $r$, and $\lambda_{+}(K)$, the number of positive eigenvalues of $K$.
+\noindent First, let $ \sigma^{(\alpha)}(K)$ denote the  number of singular values of matrix $K$ that are larger than $\alpha$, and $\lambda_{+}(K)$, the number of positive eigenvalues of $K$.
 So $\sigma^{(1)}(K) = \lambda_{+}(K^T K - I)$ and
-\[ \sigma^{(r)}(K) =  \lambda_{+}( K^T K - r^2 I) \quad \forall r > 0. \]
+\[ \sigma^{(\alpha)}(K) =  \lambda_{+}( K^T K - \alpha ^2 I) \quad \forall r > 0. \]
 
 \noindent Now let $h  = rank(C_{\B} V_0 V_0 ^T)$ be as defined in lemma \ref{achievable}. Then, 
 \begin{lemma}\label{lambda plus}
@@ -387,7 +385,7 @@ For $k < k^*$, let $\beta = \sigma_{k+1}(C) \leq \sigma_{k^*} (C) < \norm{C_{\N}
 \[ \sigma^{(1)}(\tilde{C}) = k, \quad h = 0. \]
 By lemma \ref{achievable}, there exists a $Z=(C_{\B} \sqrt{\Delta^{\dagger}})_k \sqrt{\Delta} +C_{\B} V_0V_0^T$ such that $\norm{C - Z} \leq \beta$. Since $h = rank(C_{\B} V_0V_0^T) = 0$, $rank(Z) = k$. However, by Eckart-Young theorem, $\forall D$ with $rank(D) \leq k$, $\norm{C - D} \geq \sigma_{k+1} (C)$, implying that
 \[ \norm{C - Z} = \sigma_{k+1}(C).\]
-So $C_{\B, k} := Z$ provides us the promised result.
+So $C_{\B, k} = Z$ provides us the promised result.
 \end{proof}
 
 \subsubsection{Proving $\norm{C - C_{\B, k}} \leq (1 + \epsilon) \norm{C_{\N}}$ for $k^* \leq k \leq k^* + h$}
@@ -401,7 +399,7 @@ Let $\beta = \norm{C_{\N}}$. We have, from lemma \ref{achievable} that $Z = (C_{
 \[ rank(Z) = \sigma^{(1)}(\tilde{C}) + h. \]
 From lemma \ref{lambda plus}: $\sigma^{(1)}(\tilde C) \leq \sigma^{(\beta)}(C) \leq k^*$. So it follows that $\forall k \geq k^* + h,$ $rank(Z) \leq k$. Since $C_{\B}$ is the projection of $C$ onto $\B$, we have that for any $D$ with columns in $\B$,
 \[ \norm{C - D}  \geq \norm{C - C_{\B}} = \norm{C_{\N}}.\]
-Together with $\norm{C - Z}  \leq \norm{C_{\N}}$, setting $C_{\B, k} := Z$ proves the promised result.
+Together with $\norm{C - Z}  \leq \norm{C_{\N}}$, setting $C_{\B, k} = Z$ proves the promised result.
 \end{proof}
 
 \subsubsection{Proof of Lemma \ref{lambda plus}}
